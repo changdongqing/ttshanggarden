@@ -9,12 +9,6 @@ TTShang是基于 .net 10开发的后台管理系统，系统前后台分离，ap
 
 密码：admin
 
- **docker 运行** 
-```
-docker pull huhangfei/gardener
-docker run --name gardener -p 80:80 --restart=always -d huhangfei/gardener
-```
-
 ## 项目特点
 - 新：.Net10 、Blazor WebAssembly 、Furion ；全部新鲜。
 - 简：功能简单实用
