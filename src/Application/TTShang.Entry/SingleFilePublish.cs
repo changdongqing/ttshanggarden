@@ -31,7 +31,7 @@ public class SingleFilePublish : ISingleFilePublish
         // 需要 Furion 框架扫描哪些程序集就写上去即可
         return new[]
         {
-         #region Gardener IncludeAssembly  
+         #region TTShang IncludeAssembly  
         "Gardener",
         "Gardener.Api.Core",
         //"Gardener.Api.Entry",
