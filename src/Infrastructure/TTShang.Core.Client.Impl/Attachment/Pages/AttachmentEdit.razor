@@ -1,0 +1,85 @@
+﻿@using TTShang.Core.Attachment.Dtos
+@using TTShang.Core.Attachment.Enums
+@using TTShang.Core.Attachment.Resources
+@inherits EditOperationDialogBase<SystemAttachmentDto, Guid, AttachmentLocalResource>
+@if (_editModel != null)
+{
+    <Form Loading="@_dialogLoading.Value"
+          Model="@_editModel"
+          LabelCol="new ColLayoutParam { Span = 8 }"
+          WrapperCol="new ColLayoutParam { Span = 16 }"
+          OnFinish="OnFormFinish"
+          Context="model">
+        <FormItem>
+            <Input @bind-Value="@model.Id" Disabled />
+        </FormItem>
+        <FormItem>
+            <Input @bind-Value="@model.BusinessId" Disabled />
+        </FormItem>
+        <FormItem Label="@Localizer[nameof(AttachmentLocalResource.BusinessType)]">
+            <SimpleSelect @bind-Value="@_currentEditModelBusinessType"
+                          DefaultValue="@(model.BusinessType.ToString())"
+                          Style="">
+                <SelectOptions>
+                    @foreach (var gitem in EnumHelper.EnumToDictionary<AttachmentBusinessType>())
+                    {
+                        <SimpleSelectOption Value="@(gitem.Key.ToString())" Label="@(gitem.Value)"></SimpleSelectOption>
+                    }
+                </SelectOptions>
+            </SimpleSelect>
+        </FormItem>
+        <FormItem>
+            <Input @bind-Value="@model.ContentType" Disabled="base.operationIsOnlyReadData" />
+        </FormItem>
+        <FormItem Label="@Localizer[nameof(AttachmentLocalResource.FileType)]">
+            <SimpleSelect @bind-Value="@_currentEditModelFileType"
+                          DefaultValue="@(model.FileType.ToString())"
+                          Style="" Disabled="base.operationIsOnlyReadData">
+                <SelectOptions>
+                    @foreach (var gitem in EnumHelper.EnumToDictionary<AttachmentFileType>())
+                    {
+                        <SimpleSelectOption Value="@(gitem.Key.ToString())" Label="@(gitem.Value)"></SimpleSelectOption>
+                    }
+                </SelectOptions>
+            </SimpleSelect>
+        </FormItem>
+        <FormItem>
+            <Input @bind-Value="@model.OriginalName" Disabled="base.operationIsOnlyReadData" />
+        </FormItem>
+        <FormItem>
+            <Input @bind-Value="@model.Name" Disabled="base.operationIsOnlyReadData" />
+        </FormItem>
+        <FormItem>
+            <Input @bind-Value="@model.Suffix" Disabled="base.operationIsOnlyReadData" />
+        </FormItem>
+        <FormItem>
+            <Input @bind-Value="@model.Size" Style="display:none;" Disabled="base.operationIsOnlyReadData" />
+            @FormatHelper.GetBytesReadable(model.Size)
+        </FormItem>
+        <FormItem>
+            <Input @bind-Value="@model.Path" Disabled="base.operationIsOnlyReadData" />
+        </FormItem>
+        <FormItem>
+            <Input @bind-Value="@model.Url" Disabled="base.operationIsOnlyReadData" />
+        </FormItem>
+
+        @if (this.Options.Type.Equals(OperationDialogInputType.Edit) || this.Options.Type.Equals(OperationDialogInputType.Select))
+        {
+            <FormItem Label="@Localizer[nameof(SharedLocalResource.CreatedTime)]">
+                <span>@model.CreatedTime.ToString(ClientConstant.DateTimeFormat)</span>
+            </FormItem>
+            <FormItem Label="@Localizer[nameof(SharedLocalResource.UpdatedTime)]">
+                <span>@model.UpdatedTime?.ToString(ClientConstant.DateTimeFormat)</span>
+            </FormItem>
+        }
+        <FormItem WrapperColOffset="8" WrapperColSpan="16">
+            <Space>
+                <SpaceItem>
+                    <Button OnClick="_=>OnFormCancel()">
+                        @Localizer[nameof(SharedLocalResource.Cancel)]
+                    </Button>
+                </SpaceItem>
+            </Space>
+        </FormItem>
+    </Form>
+}

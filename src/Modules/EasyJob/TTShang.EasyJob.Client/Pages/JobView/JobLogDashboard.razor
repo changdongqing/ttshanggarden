@@ -1,0 +1,89 @@
+﻿@inherits ReuseTabsPageBase
+@page "/system_manager/easy_job_dashboard"
+@using TTShang.Core.Dict.Dtos
+<Row Gutter="24" Style="margin-bottom:5px;">
+
+    <Col Span="8">
+
+    </Col>
+    <Col Span="8">
+
+    </Col>
+    <Col Span="4">
+        @if (timeQueryCodes != null)
+        {
+        <Select TItemValue="string"
+                TItem="string"
+                @bind-Value="timeQueryDays"
+                OnSelectedItemChanged="OnTimeQueryTypeSelectedItemChanged"
+        >
+            <SelectOptions>
+                    @foreach (CodeDto code in timeQueryCodes)
+                    {
+                    <SelectOption Value="code.CodeValue" Label="@Localizer[code.CodeName]"></SelectOption>
+                    }
+            </SelectOptions>
+        </Select>
+        }
+    </Col>
+    <Col Span="4">
+        @if (jobs != null)
+        {
+        <Select DataSource="@jobs"
+                @bind-Value="@jobId"
+                ValueName="@nameof(SysJobDetailDto.JobId)"
+                LabelName="@nameof(SysJobDetailDto.Description)"
+                TItem="SysJobDetailDto"
+                TItemValue="string"
+                OnSelectedItemChanged="OnJobSelectedItemChanged"
+                AllowClear>
+        </Select>
+        }
+    </Col>
+</Row>
+<Row Gutter="24">
+    <Col Span="8">
+    <Card>
+        <Statistic Title="@Localizer[nameof(SharedLocalResource.Total)]" Value="@runsNumberCount.Total" />
+    </Card>
+    </Col>
+    <Col Span="8">
+    <Card>
+        <Statistic Title="@Localizer[nameof(SharedLocalResource.Succeed)]" Value="@runsNumberCount.Succeed" />
+    </Card>
+    </Col>
+    <Col Span="8">
+    <Card>
+        <Statistic Title="@Localizer[nameof(SharedLocalResource.Failed)]" Value="@runsNumberCount.Fail" />
+    </Card>
+    </Col>
+</Row>
+<Row Gutter="24" Style="margin-top:5px;">
+    <Col Span="24">
+    <Card>
+        <AntDesign.Charts.Line Config="logElapsedTimeChartConfig" @ref="logElapsedTimeChart" />
+    </Card>
+    </Col>
+</Row>
+<Row Gutter="24" Style="margin-top:5px;">
+    <Col Span="24">
+    <Card>
+        <Row Gutter="24" Style="margin-top:5px;">
+            <Col Span="24">
+            <SimpleSelect DefaultValue="total" Style="width:120px;" OnSelectedItemChanged="OnSelectedJobRunCountType">
+                <SelectOptions>
+                    <SimpleSelectOption Value="total" Label="@Localizer[nameof(SharedLocalResource.Total)]"></SimpleSelectOption>
+                    <SimpleSelectOption Value="succeed" Label="@Localizer[nameof(SharedLocalResource.Succeed)]"></SimpleSelectOption>
+                    <SimpleSelectOption Value="fail" Label="@Localizer[nameof(SharedLocalResource.Failed)]"></SimpleSelectOption>
+                </SelectOptions>
+            </SimpleSelect>
+            </Col>
+        </Row>
+        <Row Gutter="24" Style="margin-top:5px;">
+            <Col Span="24">
+            <AntDesign.Charts.Line Config="jobRunCountChartConfig" @ref="jobRunCountChart" />
+            </Col>
+        </Row>
+    </Card>
+    </Col>
+</Row>

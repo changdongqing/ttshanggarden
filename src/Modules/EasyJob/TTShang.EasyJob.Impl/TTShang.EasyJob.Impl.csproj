@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Infrastructure\TTShang.Core.Common\TTShang.Core.Common.csproj" />
+    <ProjectReference Include="..\TTShang.EasyJob\TTShang.EasyJob.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Settings\easy-job-swagger-setting.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

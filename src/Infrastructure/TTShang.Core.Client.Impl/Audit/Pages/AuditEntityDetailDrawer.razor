@@ -1,0 +1,20 @@
+﻿@using TTShang.Core.Audit.Dtos
+@using TTShang.Core.Audit.Resources
+@inherits OperationDialogBase<ICollection<AuditEntityDto>, bool, AuditLocalResource>
+<AuditEntityDetail AuditEntitys="auditEntityDtos" Localizer="Localizer"></AuditEntityDetail>
+@code
+{
+    private ICollection<AuditEntityDto>? auditEntityDtos;
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    protected override Task OnInitializedAsync()
+    {
+        if (this.Options != null)
+        {
+            auditEntityDtos = this.Options;
+        }
+        return base.OnInitializedAsync();
+    }
+}

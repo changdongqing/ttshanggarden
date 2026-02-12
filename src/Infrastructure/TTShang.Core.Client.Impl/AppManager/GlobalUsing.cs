@@ -1,0 +1,12 @@
+﻿global using AntDesign;
+global using TTShang.Core.DependencyInjection;
+global using TTShang.Core.Util;
+global using TTShang.Core.Enums;
+global using TTShang.Core.Resources;
+global using TTShang.Core.Client.Services;
+global using TTShang.Core.Client.OperationDialog;
+global using TTShang.Core.Client.Extensions;
+global using TTShang.Core.Client.Components.PageBaseClass;
+global using TTShang.Core.AppManager.Dtos;
+global using TTShang.Core.AppManager.Services;
+global using TTShang.Core.AppManager.Resources;

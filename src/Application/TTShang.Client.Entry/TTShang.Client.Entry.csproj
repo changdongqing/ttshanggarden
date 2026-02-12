@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
+		<!--<RunAOTCompilation>true</RunAOTCompilation>-->
+		<!--<BlazorEnableCompression>true</BlazorEnableCompression>-->
+	</PropertyGroup>
+
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.8" PrivateAssets="all" />
+		<PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.JSInterop" Version="8.0.8" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Infrastructure\TTShang.Core.Client.Impl\TTShang.Core.Client.Impl.csproj" />
+	  <ProjectReference Include="..\..\Modules\CodeGeneration\TTShang.Core.CodeGeneration.Client\TTShang.Core.CodeGeneration.Client.csproj" />
+	  <ProjectReference Include="..\..\Modules\EasyJob\TTShang.EasyJob.Client\TTShang.EasyJob.Client.csproj" />
+	  <ProjectReference Include="..\..\Modules\Iot\TTShang.Iot.Client\TTShang.Iot.Client.csproj" />
+	  <ProjectReference Include="..\..\Modules\ToolBox\TTShang.ToolBox.Client\TTShang.ToolBox.Client.csproj" />
+	  <ProjectReference Include="..\..\Modules\Weighbridge\TTShang.Weighbridge.Client\TTShang.Weighbridge.Client.csproj" />
+	  <ProjectReference Include="..\..\Modules\WoChat\TTShang.WoChat.Client\TTShang.WoChat.Client.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+	</ItemGroup>
+</Project>

@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="RazorEngine.NetCore" Version="3.1.0" />
+	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Infrastructure\TTShang.Core.Common\TTShang.Core.Common.csproj" />
+    <ProjectReference Include="..\TTShang.Core.CodeGeneration\TTShang.Core.CodeGeneration.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Settings\code-generation-swagger-setting.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

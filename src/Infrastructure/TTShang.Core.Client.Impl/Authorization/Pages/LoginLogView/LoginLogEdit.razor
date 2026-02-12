@@ -1,0 +1,124 @@
+﻿@using TTShang.Core.Authorization.Enums
+@using TTShang.Core.Authorization.Resources
+@*page:LoginLogEdit.razor*@
+@*gardener-time:2024-07-01 14:55:54*@
+@inherits EditOperationDialogBase<LoginLogDto, long,AuthorizationLocalResource>
+
+<Form @ref="_editForm"
+      Loading="_dialogLoading.Value"
+      Model="_editModel"
+      LabelCol="new ColLayoutParam { Span = 6 }"
+      WrapperCol="new ColLayoutParam { Span = 18 }"
+      OnFinish="OnFormFinish"
+      Context="model">
+    <FormItem>
+        <InputNumber @bind-Value="model.Id" Disabled="true" />
+    </FormItem>
+    <ResourceAuthorize ResourceKey="@CommonResourceKeys.SystemTenantAdministratorKey">
+        <FormItem Label="@Localizer[nameof(SharedLocalResource.Tenant)]">
+            <Select DataSource="_tenants"
+                    @bind-Value="model.TenantId"
+                    ValueName="@nameof(SystemTenantDto.Id)"
+                    LabelName="@nameof(SystemTenantDto.Name)"
+                    TItem="SystemTenantDto"
+                    TItemValue="Guid?"
+                    AllowClear
+                    Disabled="base.operationIsOnlyReadData">
+            </Select>
+        </FormItem>
+    </ResourceAuthorize>
+    <FormItem>
+        <Input @bind-Value="model.LoginTime" Disabled="base.operationIsOnlyReadData" />
+    </FormItem>
+    <FormItem>
+        <Input @bind-Value="model.ClientName" Disabled="base.operationIsOnlyReadData" />
+    </FormItem>
+    <FormItem>
+        <Input @bind-Value="model.ClientVersion" Disabled="base.operationIsOnlyReadData" />
+    </FormItem>
+    <FormItem>
+        <Input @bind-Value="model.Ip" Disabled="base.operationIsOnlyReadData" />
+    </FormItem>
+    <FormItem>
+        <Input @bind-Value="model.IdentityId" Disabled="base.operationIsOnlyReadData" />
+    </FormItem>
+    <FormItem>
+        <Input @bind-Value="model.IdentityName" Disabled="base.operationIsOnlyReadData" />
+    </FormItem>
+    <FormItem>
+        <Select DataSource="EnumHelper.EnumToDictionary<IdentityType>()"
+                TItem="KeyValuePair<IdentityType,string>"
+                TItemValue="IdentityType"
+                ItemValue="x=>x.Key"
+                ItemLabel="x=>Localizer[x.Value]"
+                @bind-Value="model.IdentityType"
+                Disabled="base.operationIsOnlyReadData">
+        </Select>
+    </FormItem>
+    <FormItem>
+        <Input @bind-Value="model.LoginId" Disabled="base.operationIsOnlyReadData" />
+    </FormItem>
+    <FormItem>
+        <Select DataSource="EnumHelper.EnumToDictionary<LoginClientType>()"
+                TItem="KeyValuePair<LoginClientType,string>"
+                TItemValue="LoginClientType"
+                ItemValue="x=>x.Key"
+                ItemLabel="x=>Localizer[x.Value]"
+                @bind-Value="model.LoginClientType"
+                Disabled="base.operationIsOnlyReadData">
+        </Select>
+    </FormItem>
+    <FormItem>
+        <Select DataSource="EnumHelper.EnumToDictionary<LoginStatus>()"
+                TItem="KeyValuePair<LoginStatus,string>"
+                TItemValue="LoginStatus"
+                ItemValue="x=>x.Key"
+                ItemLabel="x=>Localizer[x.Value]"
+                @bind-Value="model.LoginStatus"
+                Disabled="base.operationIsOnlyReadData">
+        </Select>
+    </FormItem>
+    <FormItem>
+        <Select DataSource="EnumHelper.EnumToDictionary<LoginFailReason>()"
+                TItem="KeyValuePair<LoginFailReason,string>"
+                TItemValue="LoginFailReason?"
+                ItemValue="x=>x.Key"
+                ItemLabel="x=>Localizer[x.Value]"
+                @bind-Value="model.LoginFailReason"
+                Disabled="base.operationIsOnlyReadData">
+        </Select>
+    </FormItem>
+
+    @if (this.Options.Type.Equals(OperationDialogInputType.Edit) || this.Options.Type.Equals(OperationDialogInputType.Select))
+    {
+        <FormItem Label="@Localizer[nameof(SharedLocalResource.CreatedTime)]">
+            <span>@model.CreatedTime.ToString(ClientConstant.DateTimeFormat)</span>
+        </FormItem>
+
+    }
+
+    @if (this.Options.Type.Equals(OperationDialogInputType.Edit) || this.Options.Type.Equals(OperationDialogInputType.Select))
+    {
+        <FormItem Label="@Localizer[nameof(SharedLocalResource.UpdatedTime)]">
+            <span>@model.UpdatedTime?.ToString(ClientConstant.DateTimeFormat)</span>
+        </FormItem>
+
+    }
+    <FormItem WrapperColOffset="8" WrapperColSpan="16">
+        <Space>
+            @if (!OperationDialogInputType.Select.Equals(this.Options.Type))
+            {
+                <SpaceItem>
+                    <Button Type="@ButtonType.Primary" OnClick="OnGoToSubmit">
+                        @Localizer[nameof(SharedLocalResource.Save)]
+                    </Button>
+                </SpaceItem>
+            }
+            <SpaceItem>
+                <Button OnClick="_=>OnFormCancel()">
+                    @Localizer[nameof(SharedLocalResource.Cancel)]
+                </Button>
+            </SpaceItem>
+        </Space>
+    </FormItem>
+</Form>

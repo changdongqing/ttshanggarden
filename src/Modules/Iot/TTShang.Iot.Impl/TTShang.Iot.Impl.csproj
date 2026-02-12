@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Infrastructure\TTShang.Core.Common\TTShang.Core.Common.csproj" />
+    <ProjectReference Include="..\TTShang.Iot.Server.Mqtt\TTShang.Iot.Server.Mqtt.csproj" />
+    <ProjectReference Include="..\TTShang.Iot.Server.Tcp\TTShang.Iot.Server.Tcp.csproj" />
+    <ProjectReference Include="..\TTShang.Iot\TTShang.Iot.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Settings\iot-swagger-setting.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

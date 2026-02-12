@@ -1,0 +1,27 @@
+﻿// -----------------------------------------------------------------------------
+// 园丁,是个很简单的管理系统
+//  gitee:https://gitee.com/hgflydream/Gardener 
+//  issues:https://gitee.com/hgflydream/Gardener/issues 
+// -----------------------------------------------------------------------------
+
+namespace TTShang.Core.Client.OperationDialog
+{
+    /// <summary>
+    /// 抽屉返回结果类型
+    /// </summary>
+    public enum OperationDialogOutputType
+    {
+        /// <summary>
+        /// 成功
+        /// </summary>
+        Succeeded = 0,
+        /// <summary>
+        /// 失败
+        /// </summary>
+        Failed = 1,
+        /// <summary>
+        /// 取消
+        /// </summary>
+        Canceled = 2
+    }
+}

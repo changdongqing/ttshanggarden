@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="GardenerFurion" Version="1.0.5" />
+		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.4.4" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.2.0" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\TTShang.Core.Util\TTShang.Core.Util.csproj" />
+		<ProjectReference Include="..\TTShang.Core\TTShang.Core.csproj" />
+	</ItemGroup>
+
+</Project>

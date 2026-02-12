@@ -1,0 +1,62 @@
+﻿@inherits OperationDialogBase<int?, bool, UserCenterResource>
+@page "/account/online-connection"
+@using TTShang.Core.NotificationSystem
+
+@if (userConnectionInfos != null)
+{
+    <Flex Wrap="wrap" Gap="small">
+        @foreach (var context in userConnectionInfos)
+        {
+            <BadgeRibbon Text="@(context.ConnectionId.Equals(currentConnectionId) ? "本机" : "其他")" Color="@(context.ConnectionId.Equals(currentConnectionId) ? "#832" : "orange")">
+                <Card Bordered Title="@(context.ConnectionId)">
+                    <ChildContent>
+                        <Descriptions Bordered Column="1">
+                            <DescriptionsItem Title="@Localizer[nameof(SharedLocalResource.ClientName)]">@context.Identity.ClientName</DescriptionsItem>
+                            <DescriptionsItem Title="@Localizer[nameof(SharedLocalResource.ClientVersion)]">@context.Identity.ClientVersion</DescriptionsItem>
+                            <DescriptionsItem Title="@Localizer[nameof(SharedLocalResource.Ip)]">@context.Ip</DescriptionsItem>
+                            <DescriptionsItem Title="@Localizer[nameof(SharedLocalResource.LoginId)]">
+                                <GuidView StringValue="@context.Identity.LoginId"></GuidView>
+                            </DescriptionsItem>
+                            <DescriptionsItem Title="@Localizer[nameof(SharedLocalResource.ConnectTime)]">@context.ConnectTime.ToString(ClientConstant.DateTimeFormat)</DescriptionsItem>
+                        </Descriptions>
+
+                        @if (remoteServices[context.ConnectionId] != null && remoteServices[context.ConnectionId].Any())
+                        {
+                            foreach (RemoteService service in remoteServices[context.ConnectionId])
+                            {
+                                <Dropdown Placement="@Placement.BottomLeft">
+                                    <Overlay>
+                                        <Menu>
+                                            @foreach (RemoteServiceAction action in service.ServiceActions)
+                                            {
+                                                <MenuItem>
+                                                    <a @onclick="_=>OnClickCallRemoteService(context.ConnectionId,service.ServiceKey,action)">
+                                                        @action.ActionName
+                                                    </a>
+                                                </MenuItem>
+                                            }
+                                        </Menu>
+                                    </Overlay>
+                                    <ChildContent>
+                                        <Button>@service.ServiceName</Button>
+                                    </ChildContent>
+                                </Dropdown>
+                            }
+
+                        }
+                    </ChildContent>
+                    <ActionTemplate>
+                        <CardAction><Button Type="primary" Disabled="context.ConnectionId.Equals(currentConnectionId)" OnClick="_ => DiscoverRemoteService(context.ConnectionId)">发现服务</Button></CardAction>
+                    </ActionTemplate>
+                </Card>
+            </BadgeRibbon>
+        }
+    </Flex>
+}
+
+<Modal Title="输入数据"
+       @bind-Visible="@inputDataBox"
+       OnOk="@CallRemoteService"
+       OnCancel="_ => inputDataBox = false">
+    <TextArea Rows="4" @bind-Value="data" Placeholder="@dataDescription" />
+</Modal>
