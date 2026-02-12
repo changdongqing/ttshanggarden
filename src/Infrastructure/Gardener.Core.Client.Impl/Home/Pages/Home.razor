@@ -1,0 +1,36 @@
+﻿@page "/"
+@inherits ReuseTabsPageBase
+<div>
+    <Row>
+        <Col Span="16" Style="border:1px solid #ccc;">
+        <Gardener.WoChat.Client.Components.WoChat Height="75Vh" />
+        </Col>
+        <Col Span="7" Offset="1">
+        <Row>
+            <Col Span="24">
+            <Card Title="交流群" Style="">
+                <Extra>
+                </Extra>
+                <Body>
+                    <a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=ILV3MBrcZtr4uUSsKa3njjnpBiUvT0xe&jump_from=webapi">
+                        <img alt="点击加入" title="点击加入" src="./assets/qq-group.webp" style="height:200px;"/>
+                    </a>
+                </Body>
+            </Card>
+            <br />
+            <Card Title="文档">
+                <Extra>
+                </Extra>
+                <Body>
+                    <p>
+                        <a target="_blank" href="@(apiSettings.Value.BaseAddres+"index.html")">swagger api document</a>
+                    </p>
+                    <p><a target="_blank" href="https://gitee.com/hgflydream/Gardener/wikis/pages">使用文档</a></p>
+                    <p style="word-wrap: break-word;">源码：<a target="_blank" href="https://gitee.com/hgflydream/Gardener">https://gitee.com/hgflydream/Gardener</a></p>
+                </Body>
+            </Card>
+            </Col>
+        </Row>
+        </Col>
+    </Row>
+</div>

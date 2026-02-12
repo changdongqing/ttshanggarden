@@ -1,0 +1,64 @@
+﻿// -----------------------------------------------------------------------------
+// 园丁,是个很简单的管理系统
+//  gitee:https://gitee.com/hgflydream/Gardener 
+//  issues:https://gitee.com/hgflydream/Gardener/issues 
+// -----------------------------------------------------------------------------
+
+using Gardener.Core.Client.Impl.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Localization;
+using Gardener.Core.Impl.Localization;
+
+namespace Gardener.Core.Client.Impl.Extensions
+{
+    public static class CultureExtension
+    {
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        /// <param name="cultureStorageKey"></param>
+        /// <param name="defaultCulture"></param>
+        public async static Task UseAppLocalization(this IServiceProvider serviceProvider, string cultureStorageKey, string defaultCulture)
+        {
+            serviceProvider.InitLocalizationLocalizerUtil();
+            using (var scope = serviceProvider.CreateScope())
+            {
+                IClientCultureService cultureService = scope.ServiceProvider.GetRequiredService<IClientCultureService>();
+                await cultureService.Init(cultureStorageKey, defaultCulture);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TDefaultResource"></typeparam>
+        /// <param name="services"></param>
+        /// <param name="resourcesPath"></param>
+        /// <returns></returns>
+        public static IServiceCollection AddAppLocalization<TDefaultResource>(this IServiceCollection services, string? resourcesPath = default)
+        {
+            //Culture 管理地区标示
+            services.TryAddScoped<IClientCultureService, ClientCultureService>();
+            //本地化
+            services.AddLocalization(options =>
+            {
+                if (!string.IsNullOrEmpty(resourcesPath))
+                {
+                    options.ResourcesPath = resourcesPath;
+                }
+            });
+            //注入内置 IStringLocalizer
+            services.TryAddTransient(serviceProvider =>
+            {
+                IStringLocalizerFactory stringLocalizerFactory = serviceProvider.GetRequiredService<IStringLocalizerFactory>();
+                return stringLocalizerFactory.Create(typeof(TDefaultResource));
+            });
+            //注入封装的 Localizer 处理不同地区本地化内容
+            services.AddLocalization<TDefaultResource>();
+            return services;
+        }
+    }
+}

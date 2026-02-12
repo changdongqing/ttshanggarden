@@ -1,0 +1,92 @@
+﻿@using Gardener.Core.Audit.Dtos
+@using Gardener.Core.Audit.Resources
+@page "/system_manager/audit-entity"
+@inherits ListTableBase<AuditEntityDto, Guid, AuditLocalResource>
+@{
+    TableFilter<EntityOperateType>[] entityOperateTypeFilters = EnumHelper.EnumToList<EntityOperateType>().Select(x => { return new TableFilter<EntityOperateType>() { Text = Localizer[EnumHelper.GetEnumDescriptionOrName(x)], Value = x }; }).ToArray();
+    TableFilter<IdentityType>[] identityTypeFilters = EnumHelper.EnumToList<IdentityType>().Select(x => { return new TableFilter<IdentityType>() { Text = Localizer[EnumHelper.GetEnumDescriptionOrName(x)], Value = x }; }).ToArray();
+}
+<div>
+    <Table @ref="_table"
+           TItem="AuditEntityDto"
+           DataSource="@_datas"
+           Total="_total"
+           OnChange="@OnChange"
+           @bind-PageSize="_pageSize"
+           @bind-PageIndex="_pageIndex"
+           @bind-SelectedRows="_selectedRows"
+           Loading="@_tableLoading.Value"
+           Context="model"
+           Size="@ClientConstant.DefaultTableSize"
+           PaginationPosition="@ClientConstant.TablePaginationPosition"
+           RemoteDataSource>
+        <TitleTemplate>
+            <ResourceAuthorize ResourceKey="system_manager_audit_entity_refresh">
+                <TableSearch TDto="AuditEntityDto" @ref="this._tableSearch" OnSearch="OnTableSearch" Settings="@_tableSearchSettings" CustomLocalizer="Localizer" />
+            </ResourceAuthorize>
+            <Row>
+                <AntDesign.Col Span="8">
+                    <ResourceAuthorize ResourceKey="system_manager_audit_entity_delete_selected">
+                        <Button Type="@ButtonType.Primary" Icon="delete" Danger OnClick="OnClickDeletes" Loading="_deletesBtnLoading">
+                            @Localizer[nameof(SharedLocalResource.DeleteSelected)]
+                        </Button>
+                    </ResourceAuthorize>
+                </AntDesign.Col>
+                <AntDesign.Col Span="16" Style="text-align:right">
+                    <Space>
+                        <ResourceAuthorize ResourceKey="system_manager_audit_entity_refresh">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="reload" OnClick="ReLoadTable">
+                                    @Localizer[nameof(SharedLocalResource.Refresh)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                        <ResourceAuthorize ResourceKey="system_manager_audit_entity_export">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="export" OnClick="OnClickExport" Loading="_exportDataLoading">
+                                    @Localizer[nameof(SharedLocalResource.Export)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                    </Space>
+                </AntDesign.Col>
+            </Row>
+        </TitleTemplate>
+        <ColumnDefinitions>
+            <Selection Key="@(model.Id.ToString())" Hidden="@_userUnauthorizedResources["system_manager_audit_entity_delete_selected"]" />
+            <PropertyColumn Property="x=>x.TenantId" Filters="_tenantFilters" Filterable Title="@Localizer[nameof(SharedLocalResource.Tenant)]" Hidden="@_userUnauthorizedResources[CommonResourceKeys.SystemTenantAdministratorKey]" >
+                <span>@model.Tenant?.Name</span>
+            </PropertyColumn>
+            <Column @bind-Field="@model.OperaterId" Filterable />
+            <Column @bind-Field="@model.OperaterName" Filterable />
+            <Column @bind-Field="@model.OperaterType" Filters="identityTypeFilters">
+                <TagPro Text="@model.OperaterType">@Localizer[EnumHelper.GetEnumDescription(model.OperaterType) ?? model.OperaterType.ToString()]</TagPro>
+            </Column>
+            <Column @bind-Field="@model.Name" Filterable />
+            <Column @bind-Field="@model.TypeName" Filterable />
+            <Column @bind-Field="@model.DataId" Width="300" />
+            <Column @bind-Field="@model.OperationType" Filters="entityOperateTypeFilters">
+                <TagPro Text="model.OperationType">@Localizer[EnumHelper.GetEnumDescription(model.OperationType) ?? model.OperationType.ToString()]</TagPro>
+            </Column>
+            <Column @bind-Field="@model.CreatedTime" Format="@ClientConstant.DateTimeFormat" Sortable DefaultSortOrder="@SortDirection.Descending" />
+            <ActionColumn>
+                <Space>
+                    <ResourceAuthorize ResourceKey="system_manager_audit_entity_detail">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Detail)]" ArrowPointAtCenter="true">
+                                <Button Icon="read" Type="@ButtonType.Primary" OnClick="()=>OnDetailClick(model)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="system_manager_audit_entity_delete">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Delete)]" ArrowPointAtCenter="true">
+                                <Button Icon="delete" Type="@ButtonType.Primary" Danger OnClick="()=>OnClickDelete(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                </Space>
+            </ActionColumn>
+        </ColumnDefinitions>
+    </Table>
+</div>

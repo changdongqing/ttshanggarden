@@ -1,0 +1,12 @@
+﻿@if (state == 0)
+{
+    @Authorizing
+}
+else if (state == 1)
+{
+    @(Authorized ?? ChildContent)
+}
+else if (state == -1)
+{
+    @NotAuthorized
+}

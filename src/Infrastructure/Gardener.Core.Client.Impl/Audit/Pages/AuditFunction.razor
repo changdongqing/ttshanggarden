@@ -1,0 +1,138 @@
+﻿@using Gardener.Core.Audit.Dtos
+@using Gardener.Core.Audit.Resources
+@page "/system_manager/audit-function"
+@inherits ListTableBase<AuditFunctionDto, Guid, AuditLocalResource>
+@{
+    TableFilter<IdentityType>[] identityTypeFilters = EnumHelper.EnumToList<IdentityType>().Select(x => { return new TableFilter<IdentityType>() { Text = Localizer[EnumHelper.GetEnumDescriptionOrName(x)], Value = x }; }).ToArray();
+    TableFilter<ApiHttpMethod>[] apiHttpMethodFilters = EnumHelper.EnumToList<ApiHttpMethod>().Select(x => { return new TableFilter<ApiHttpMethod>() { Text = Localizer[EnumHelper.GetEnumDescriptionOrName(x)], Value = x }; }).ToArray();
+    TableFilter<LoginClientType>[] loginClientTypeFilters = EnumHelper.EnumToList<LoginClientType>().Select(x => { return new TableFilter<LoginClientType>() { Text = Localizer[EnumHelper.GetEnumDescriptionOrName(x)], Value = x }; }).ToArray();
+
+}
+<div>
+    <Table @ref="_table"
+           TItem="AuditFunctionDto"
+           DataSource="@_datas"
+           Total="_total"
+           OnChange="@OnChange"
+           @bind-PageSize="_pageSize"
+           @bind-PageIndex="_pageIndex"
+           @bind-SelectedRows="_selectedRows"
+           Loading="@_tableLoading.Value"
+           RowExpandable="@(r=>true)"
+           Context="model"
+           Size="@ClientConstant.DefaultTableSize"
+           PaginationPosition="@ClientConstant.TablePaginationPosition"
+           ScrollX="100%"
+           RemoteDataSource>
+        <TitleTemplate>
+            <ResourceAuthorize ResourceKey="system_manager_audit_function_refresh">
+                <TableSearch TDto="AuditFunctionDto" @ref="this._tableSearch" OnSearch="OnTableSearch" Settings="@_tableSearchSettings" CustomLocalizer="Localizer" />
+            </ResourceAuthorize>
+            <Row>
+                <AntDesign.Col Span="8">
+                    <ResourceAuthorize ResourceKey="system_manager_audit_function_delete_selected">
+                        <Button Type="@ButtonType.Primary" Icon="delete" Danger OnClick="OnClickDeletes" Loading="_deletesBtnLoading">
+                            @Localizer[nameof(SharedLocalResource.DeleteSelected)]
+                        </Button>
+                    </ResourceAuthorize>
+                </AntDesign.Col>
+                <AntDesign.Col Span="16" Style="text-align:right">
+                    <Space>
+                        <ResourceAuthorize ResourceKey="system_manager_audit_function_refresh">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="reload" OnClick="ReLoadTable">
+                                    @Localizer[nameof(SharedLocalResource.Refresh)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                        <ResourceAuthorize ResourceKey="system_manager_audit_function_export">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="export" OnClick="OnClickExport" Loading="_exportDataLoading">
+                                    @Localizer[nameof(SharedLocalResource.Export)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                    </Space>
+                </AntDesign.Col>
+            </Row>
+
+        </TitleTemplate>
+        <ColumnDefinitions>
+            <Selection Key="@(model.Id.ToString())" Hidden="@_userUnauthorizedResources["system_manager_audit_function_delete_selected"]" Fixed="left" Width="50"  />
+            <PropertyColumn Property="x=>x.TenantId" Filters="_tenantFilters" Filterable Title="@Localizer[nameof(SharedLocalResource.Tenant)]" Hidden="@_userUnauthorizedResources[CommonResourceKeys.SystemTenantAdministratorKey]" Width="@(_userUnauthorizedResources[CommonResourceKeys.SystemTenantAdministratorKey]?"0":"100")" Ellipsis Fixed="left">
+                <span>@model.Tenant?.Name</span>
+            </PropertyColumn>
+            <Column @bind-Field="@model.OperaterId" Filterable Fixed="left" Width="100" Ellipsis />
+            <Column @bind-Field="@model.OperaterName" Filterable Fixed="left" Width="100" Ellipsis />
+            <Column @bind-Field="@model.OperaterType" Filters="identityTypeFilters" Fixed="left" Width="100" Ellipsis>
+                <TagPro Text="@model.OperaterType">@Localizer[EnumHelper.GetEnumDescriptionOrName(model.OperaterType) ?? model.OperaterType.ToString()]</TagPro>
+            </Column>
+            <Column @bind-Field="@model.FunctionKey" Width="200" Ellipsis Filterable Fixed="left">
+                @if (!string.IsNullOrEmpty(model.FunctionKey))
+                {
+                    <ResourceAuthorize ResourceKey="system_asset_function">
+                        <Authorized>
+                            <a href="system_asset/function?@(nameof(FunctionDto.Key))=@model.FunctionKey">@model.FunctionKey</a>
+                        </Authorized>
+                        <NotAuthorized>
+                            <lable>@model.FunctionKey</lable>
+                        </NotAuthorized>
+                    </ResourceAuthorize>
+                }
+                else
+                {
+                    <lable>--</lable>
+                }
+            </Column>
+            <Column @bind-Field="@model.ApiEndpoint" Width="300" Ellipsis>
+                @if (model.ApiEndpoint != null)
+                {
+                    <span>@model.ApiEndpoint.Summary</span>
+                    @if (!string.IsNullOrWhiteSpace(model.ApiEndpoint.Description))
+                    {
+                        <span>（@model.ApiEndpoint.Description）</span>
+                    }
+                }
+                else
+                {
+                    <span>--</span>    
+                }
+            </Column>
+            <Column @bind-Field="@model.Ip" Width="100" Ellipsis />
+            <Column @bind-Field="@model.LoginId" Filterable Width="150">
+                <GuidView StringValue="@model.LoginId"></GuidView>
+            </Column>
+            <Column @bind-Field="@model.LoginClientType" Filters="loginClientTypeFilters" Width="120">
+                <TagPro Text="@Localizer[EnumHelper.GetEnumDescriptionOrName(model.LoginClientType)]"></TagPro>
+            </Column>
+            <Column @bind-Field="@model.Method" Filters="apiHttpMethodFilters" Width="100" Ellipsis />
+            <Column @bind-Field="@model.Path" Width="300" Ellipsis />
+            <Column @bind-Field="@model.CreatedTime" Format="@ClientConstant.DateTimeFormat" Sortable DefaultSortOrder="@SortDirection.Descending" Width="200" Fixed="right" />
+            <ActionColumn Width="150" Fixed="right">
+                <Space>
+                    <ResourceAuthorize ResourceKey="system_manager_audit_function_detail">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Detail)]" ArrowPointAtCenter="true">
+                                <Button Icon="read" Type="@ButtonType.Primary" OnClick="()=>OnDetailClick(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="system_manager_audit_function_parameters">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(AuditLocalResource.Parameters)]" ArrowPointAtCenter="true">
+                                <Button Icon="ellipsis" Type="@ButtonType.Primary" OnClick="()=>OnShowParametersClick(model)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="system_manager_audit_function_delete">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Delete)]" ArrowPointAtCenter="true">
+                                <Button Icon="delete" Type="@ButtonType.Primary" Danger OnClick="()=>OnClickDelete(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                </Space>
+            </ActionColumn>
+        </ColumnDefinitions>
+    </Table>
+</div>

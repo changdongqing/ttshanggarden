@@ -1,0 +1,76 @@
+﻿@inherits OperationDialogBase<Guid,bool,SystemAssetResource>
+@page "/system_asset/resource_function_bind"
+@{
+
+    TableFilter<ApiHttpMethod>[] apiHttpMethodFilters = EnumHelper.EnumToList<ApiHttpMethod>().Select(x => { return new TableFilter<ApiHttpMethod>() { Text = Localizer[EnumHelper.GetEnumDescriptionOrName(x)], Value = x }; }).ToArray();
+}
+<div>
+    <Row>
+        <Col Span="5">
+        <Spin Spinning="_treeLoading">
+                @if (resources != null)
+                {
+                <Tree @ref="_tree"
+                      ShowLine
+                      DataSource="resources"
+                      Multiple="false"
+                      TitleExpression="x => x.DataItem.Name"
+                      ChildrenExpression="x => x.DataItem.Children?.ToList()"
+                      KeyExpression="x => x.DataItem.Id.ToString()"
+                      IsLeafExpression="x=>x.DataItem.Children ==null || !x.DataItem.Children.Any()"
+                      SelectedDataChanged="TreeSelectedChanged"
+                      DefaultExpandParent="false"
+                      DefaultExpandAll="false"
+                      TItem="ResourceDto"
+                      Style="height:80vh;overflow-y: scroll;overflow-x: scroll;">
+                </Tree>
+                }
+        </Spin>
+
+        </Col>
+        <Col Span="19">
+        <Table @ref="_table"
+               PageSize="15"
+               DataSource="@_functionDtos"
+               TItem="FunctionDto"
+               Loading="@_tableLoading"
+               Context="model"
+               Size=@TableSize.Small
+               Bordered="true"
+               HidePagination="false"
+               ScrollY="75Vh"
+               Style="max-height:75Vh;"
+               RowKey="x=>x.Id"
+               PaginationPosition="@ClientConstant.TablePaginationPosition"
+               >
+            <TitleTemplate>
+                <Button Type="@ButtonType.Primary" Icon="reload" OnClick="()=>_table?.ResetData()">@Localizer[nameof(SystemAssetResource.Reset)]</Button>
+            </TitleTemplate>
+            <ColumnDefinitions>
+                <Column @bind-Field="@model.ModuleName" Width="100" Filterable />
+                <Column TData="string" @bind-Field="@model.Group" Width="100" Sortable="false" Filterable />
+                <Column TData="string" @bind-Field="@model.Tags" Width="100" Sortable="false" Filterable />
+                <Column @bind-Field="@model.Description" Width="250" Sortable="false" Ellipsis Filterable />
+                <Column @bind-Field="@model.Method" Width="60" Sortable="false" Filters="apiHttpMethodFilters">
+                    <TagPro Text="@EnumHelper.GetEnumDescription(model.Method)"></TagPro>
+                </Column>
+                <Column @bind-Field="@model.Path" Width="150" Sortable="false" Ellipsis Filterable />
+                <Column TData="string" @bind-Field="@model.Key" Width="150" Ellipsis Sortable="false" Filterable />
+                <ActionColumn Width="60">
+                        @if (selectResource!=null)
+                        {
+                            if (CheckIsBind(model))
+                            {
+                            <Button Type="@ButtonType.Primary" Danger Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnClickUnBind(model)" Disabled="!hasBindPermission">@(Localizer[nameof(SharedLocalResource.Unbind)])</Button>
+                            }
+                            else
+                            {
+                            <Button Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnClickBind(model)" Disabled="!hasBindPermission">@(Localizer[nameof(SharedLocalResource.Bind)])</Button>
+                            }
+                        }
+                </ActionColumn>
+            </ColumnDefinitions>
+        </Table>
+        </Col>
+    </Row>
+</div>

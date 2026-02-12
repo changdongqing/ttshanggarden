@@ -1,0 +1,53 @@
+﻿@inherits OperationDialogBase<RoleDto, bool>
+
+<Spin Spinning="_dialogLoading.Value">
+    <Row>
+        <AntDesign.Col Span="24" Style="max-height: 80Vh; min-height:80Vh; overflow-y: scroll; min-width: 400px ">
+            @if (_resources != null && _resources.Count > 0)
+            {
+                <Tree @ref="_tree"
+                      TItem="ResourceDto"
+                  ShowLine
+                  Checkable
+                      DataSource="_resources"
+                      DefaultCheckedKeys="_defaultCheckedKeys"
+                      KeyExpression="x=>x.DataItem.Id.ToString()"
+                      TitleExpression="x=>GetFullName(x.DataItem)"
+                      ChildrenExpression="x=>x.DataItem.Children?.ToList()"
+                      IsLeafExpression="x=>x.DataItem.Children ==null || !x.DataItem.Children.Any()"
+                      DefaultExpandParent="true">
+                </Tree>
+            }
+        </AntDesign.Col>
+    </Row>
+    <Row>
+        <AntDesign.Col Span="24" Style="padding-top:10px;text-align:center;">
+            <Space>
+                <SpaceItem>
+                    <Tooltip Placement="Placement.TopLeft" Title="@(_isExpanded?Localizer[nameof(SharedLocalResource.Close)]:Localizer[nameof(SharedLocalResource.Expand)])">
+                        <Button Type="@ButtonType.Primary" Icon="@(_isExpanded?"up":"down")" Size="@ClientConstant.OperationButtonSize" OnClick="OnExpandClick" />
+                    </Tooltip>
+                </SpaceItem>
+                <SpaceItem>
+                    <ResourceAuthorize ResourceKey="user_center_role_set_resource_save">
+                            <Button Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="OnSaveClick">
+                                @Localizer[nameof(SharedLocalResource.Save)]
+                            </Button>
+                    </ResourceAuthorize>
+                </SpaceItem>
+                <SpaceItem>
+                    <Button Type="@ButtonType.Default" Size="@ClientConstant.OperationButtonSize" OnClick="OnCancelClick">
+                        @Localizer[nameof(SharedLocalResource.Cancel)]
+                    </Button>
+                </SpaceItem>
+            </Space>
+        </AntDesign.Col>
+    </Row>
+</Spin>
+
+@{
+    string GetFullName(ResourceDto resource)
+    {
+        return "[" + Lo.GetValue<SharedLocalResource>(resource.Type.GetEnumDescriptionOrName()) + "]" + resource.Name;
+    }
+}

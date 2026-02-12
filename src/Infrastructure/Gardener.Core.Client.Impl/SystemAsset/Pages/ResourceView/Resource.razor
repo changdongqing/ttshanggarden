@@ -1,0 +1,128 @@
+﻿@page "/system_asset/resource"
+@inherits TreeTableBase<ResourceDto, Guid, ResourceEdit,SystemAssetResource>
+<div>
+    <Table @ref=_table
+           TItem="ResourceDto"
+           DataSource="_datas"
+           OnChange="onChange"
+           Loading="_tableLoading.Value"
+           TreeChildren="item=>item.Children"
+           @bind-SelectedRows="_selectedRows"
+           HidePagination="true"
+           IndentSize="25"
+           Size="ClientConstant.DefaultTableSize"
+           PaginationPosition="@ClientConstant.TablePaginationPosition"
+           Context="model">
+        <TitleTemplate>
+            <Row>
+                <AntDesign.Col Span="8">
+                    <ResourceAuthorize ResourceKey="system_asset_resource_delete_selected">
+                        <Button Type="@ButtonType.Primary" Icon="delete" Danger OnClick="OnClickDeletes">
+                            @Localizer[nameof(SharedLocalResource.DeleteSelected)]
+                        </Button>
+                    </ResourceAuthorize>
+                </AntDesign.Col>
+                <AntDesign.Col Span="16" Style="text-align:right">
+                    <Space>
+                        <ResourceAuthorize ResourceKey="system_asset_resource_add">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="plus" OnClick="OnClickAdd">
+                                    @Localizer[nameof(SharedLocalResource.Add)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                        <ResourceAuthorize ResourceKey="system_asset_resource_refresh">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="reload" OnClick="OnReLoadTable">
+                                    @Localizer[nameof(SharedLocalResource.Refresh)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                    </Space>
+                </AntDesign.Col>
+            </Row>
+        </TitleTemplate>
+        <ColumnDefinitions>
+            <Selection CheckStrictly Width="5%" Hidden="@_userUnauthorizedResources["system_asset_resource_delete_selected"]" />
+            <PropertyColumn Property="c=>c.Name" Width="20%">
+                <span>
+                    @if (!string.IsNullOrEmpty(model.Icon))
+                    {
+                        <Icon Type="@model.Icon"></Icon>
+                    }
+                    @Localizer[model.Name]
+                </span>
+            </PropertyColumn>
+            <PropertyColumn Property="c=>c.Type" Width="5%">
+                <TagPro Text="@(Localizer[EnumHelper.GetEnumDescriptionOrName(model.Type)])"></TagPro>
+            </PropertyColumn>
+            <PropertyColumn Property="c=>c.Key" Width="5%" />
+            <PropertyColumn Property="c=>c.Order" Width="5%" />
+            <PropertyColumn Property="c=>c.SupportMultiTenant">
+                <TagYesNo Yes="model.SupportMultiTenant"></TagYesNo>
+            </PropertyColumn>
+            <PropertyColumn Property="c=>c.Hide">
+                <TagYesNo Yes="model.Hide"></TagYesNo>
+            </PropertyColumn>
+            <PropertyColumn Property="c=>c.IsLocked" Width="10%">
+                <ResourceAuthorize ResourceKey="system_asset_resource_lock">
+                    <Authorized>
+                        <Switch @bind-Value="@model.IsLocked" OnChange="e=>OnChangeIsLocked(model,e)" Loading="_lockBtnLoading[model]"></Switch>
+                    </Authorized>
+                    <NotAuthorized>
+                        <TagYesNo Yes="model.IsLocked"></TagYesNo>
+                    </NotAuthorized>
+                </ResourceAuthorize>
+            </PropertyColumn>
+            <ActionColumn Width="10%">
+                <Space>
+                    <ResourceAuthorize ResourceKey="system_asset_resource_add_children">
+                        <SpaceItem>
+                            <Tooltip Title="@(Localizer["AddChildren"])" ArrowPointAtCenter="true">
+                                <Button Icon="subnode" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnClickAddChildren(model)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="system_asset_resource_download_seed_data">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.SeedData)]" ArrowPointAtCenter="true">
+                                <Button Icon="download" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnDownloadSeedDataClick(model)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="system_asset_resource_edit">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Edit)]" ArrowPointAtCenter="true">
+                                <Button Icon="edit" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnClickEdit(model)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="system_asset_resource_show_function">
+                        <SpaceItem>
+                            <Tooltip Title="@(Localizer["BindingApi"])" ArrowPointAtCenter="true">
+                                <Button Icon="api" Type="@ButtonType.Primary" OnClick="()=>OnShowFunctionClick(model)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+
+                    <ResourceAuthorize ResourceKey="system_asset_resource_detail">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Detail)]" ArrowPointAtCenter="true">
+                                <Button Icon="eye" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnClickDetail(model)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+
+                    <ResourceAuthorize ResourceKey="system_asset_resource_delete">
+                        <SpaceItem>
+                            <Tooltip Title="@(Localizer["DeleteAndIncludChildren"])" ArrowPointAtCenter="true">
+                                <Button Icon="delete" Type="@ButtonType.Primary" Danger OnClick="()=>OnClickDelete(model)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                </Space>
+            </ActionColumn>
+        </ColumnDefinitions>
+    </Table>
+</div>
+

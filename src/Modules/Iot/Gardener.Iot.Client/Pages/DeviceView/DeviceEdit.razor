@@ -1,0 +1,154 @@
+﻿@inherits EditOperationDialogBase<DeviceDto,Guid,IotLocalResource>
+@if (_editModel != null)
+{
+    <Form @ref="_editForm"
+          Loading="@_dialogLoading.Value"
+          Model="_editModel"
+          LabelCol="new ColLayoutParam { Span = 6 }"
+          WrapperCol="new ColLayoutParam { Span = 18 }"
+          OnFinish="OnFormFinish"
+          ValidateMode="FormValidateMode.Complex"
+          Context="model">
+
+        <ResourceAuthorize ResourceKey="@CommonResourceKeys.SystemTenantAdministratorKey">
+            <FormItem Label="@Localizer[nameof(SharedLocalResource.Tenant)]">
+                <Select DataSource="@_tenants"
+                        @bind-Value="@model.TenantId"
+                        ValueName="@nameof(SystemTenantDto.Id)"
+                        LabelName="@nameof(SystemTenantDto.Name)"
+                        TItem="SystemTenantDto"
+                        TItemValue="Guid ?"
+                        AllowClear
+                        Disabled="operationIsOnlyReadData">
+                </Select>
+            </FormItem>
+        </ResourceAuthorize>
+        @if (!OperationDialogInputType.Add.Equals(this.Options.Type))
+        {
+            <FormItem>
+                <Input @bind-Value="model.Id" Disabled="operationIsOnlyReadData" />
+            </FormItem>
+        }
+        @if (allDeviceGroupDatas != null && allDeviceGroupDatas.Any())
+        {
+            <FormItem Label="@Localizer[nameof(IotLocalResource.DeviceGroup)]">
+                @* <Input @bind-Value="@model.DeviceGroupId" Type="hidden" /> *@
+                <TreeSelect TItem="DeviceGroupDto"
+                            TItemValue="int?"
+                            ItemLabel="x => x.Name"
+                            ItemValue="x => x.Id"
+                            KeyExpression="node => node.DataItem.Id.ToString()"
+                            TitleExpression="node => node.DataItem.Name"
+                            Style="width:100%;"
+                            DataSource="allDeviceGroupDatas"
+                            @bind-Value="@_editModel.DeviceGroupId"
+                            Placeholder="@Localizer[nameof(SharedLocalResource.PleaseSelect)]"
+                            AllowClear
+                            TreeDefaultExpandAll
+                            ChildrenExpression="node => node.DataItem.Children?.ToList()"
+                            IsLeafExpression="node => node.DataItem.Children == null || !node.DataItem.Children.Any()"
+                            DisabledExpression="node => node.DataItem.Id.Equals(_editModel.Id) || node.DataItem.IsLocked"
+                            Disabled="this.Options.Data != Guid.Empty && !OperationDialogInputType.Edit.Equals(this.Options.Type)">
+                </TreeSelect>
+            </FormItem>
+        }
+        @if (productDatas != null && productDatas.Any())
+        {
+            <FormItem Label="@Localizer[nameof(DeviceDto.Product)]">
+                <Select TItem="ProductDto"
+                        TItemValue="Guid ?"
+                        ItemValue="x => x.Id"
+                        ItemLabel="x => x.ProductName"
+                        DataSource="productDatas"
+                        DisabledPredicate="x => x.IsLocked"
+                        OnSelectedItemChanged="OnSelectedItemChanged"
+                        @bind-Value="model.ProductId"
+                        AllowClear
+                        Disabled="operationIsOnlyReadData">
+                </Select>
+            </FormItem>
+        }
+        <FormItem>
+            <Input @bind-Value="@model.Name" Disabled="operationIsOnlyReadData" AllowClear />
+        </FormItem>
+        <FormItem>
+            <Input @bind-Value="@model.Alias" Disabled="operationIsOnlyReadData" AllowClear />
+        </FormItem>
+        <FormItem Rules="[_uniqueValueValidatorRule]">
+            <Flex Justify="space-between">
+                <Input @bind-Value="@model.ClientId" Disabled="operationIsOnlyReadData" AllowClear />
+                @if (operationIsOnlyReadData)
+                {
+                    <CopyView Value="@model.ClientId" BtnSize="@ButtonSize.Default"></CopyView>
+                }
+            </Flex>
+        </FormItem>
+        <FormItem>
+            <Flex Justify="space-between">
+                <Input @bind-Value="@model.Account" Disabled="operationIsOnlyReadData" AllowClear />
+                @if (!operationIsOnlyReadData)
+                {
+                    <GenerateRandomCode @bind-Value="@model.Account" FirstMustIsCharacter=true CodeLengthList="@([5, 8, 12, 16, 18, 32])" ToLower="true"></GenerateRandomCode>
+                }
+                else
+                {
+                    <CopyView Value="@model.Account" BtnSize="@ButtonSize.Default"></CopyView>
+                }
+            </Flex>
+        </FormItem>
+        <FormItem>
+            <TextArea @bind-Value="@model.SecretKey" MinRows="2" Disabled="operationIsOnlyReadData" AllowClear />
+            @if (!operationIsOnlyReadData)
+            {
+                <GenerateRandomCode @bind-Value="@model.SecretKey" Width="28%" CodeLengthList="@([14, 16, 18, 32])"></GenerateRandomCode>
+            }
+            else
+            {
+                <CopyView Value="@model.SecretKey" BtnSize="@ButtonSize.Default"></CopyView>
+            }
+        </FormItem>
+        <FormItem>
+            <Select TItem="DeviceDataContentType"
+                    TItemValue="string"
+                    ItemValue="x => x.ContentType"
+                    ItemLabel="x => x.ContentType"
+                    DataSource="DeviceDataContentType.Types"
+                    @bind-Value="model.InputContentType"
+                    AllowClear
+                    Disabled="operationIsOnlyReadData">
+            </Select>
+        </FormItem>
+        <FormItem>
+            <Switch @bind-Value="@model.StorageHistoryData" Disabled="operationIsOnlyReadData"></Switch>
+        </FormItem>
+        <FormItem>
+            <Switch @bind-Value="@model.IsLocked" Disabled="operationIsOnlyReadData"></Switch>
+        </FormItem>
+        @if (this.Options.Type.Equals(OperationDialogInputType.Edit) || this.Options.Type.Equals(OperationDialogInputType.Select))
+        {
+            <FormItem Label="@Localizer[nameof(SharedLocalResource.CreatedTime)]">
+                <span>@model.CreatedTime.ToString(ClientConstant.DateTimeFormat)</span>
+            </FormItem>
+            <FormItem Label="@Localizer[nameof(SharedLocalResource.UpdatedTime)]">
+                <span>@model.UpdatedTime?.ToString(ClientConstant.DateTimeFormat)</span>
+            </FormItem>
+        }
+        <FormItem WrapperColOffset="4" WrapperColSpan="24">
+            <Space>
+                @if (!OperationDialogInputType.Select.Equals(this.Options.Type))
+                {
+                    <SpaceItem>
+                        <Button Type="@ButtonType.Primary" OnClick="OnGoToSubmit">
+                            @Localizer[nameof(SharedLocalResource.Save)]
+                        </Button>
+                    </SpaceItem>
+                }
+                <SpaceItem>
+                    <Button OnClick="_ => OnFormCancel()">
+                        @Localizer[nameof(SharedLocalResource.Cancel)]
+                    </Button>
+                </SpaceItem>
+            </Space>
+        </FormItem>
+    </Form>
+}

@@ -1,0 +1,124 @@
+﻿@page "/system_manager/code_type"
+@inherits ListOperateTableBase<CodeTypeDto, int, CodeTypeEdit,DictResource>
+<div>
+    <Table @ref="_table"
+           TItem="CodeTypeDto"
+           DataSource="@_datas"
+           Total="_total"
+           OnChange="@OnChange"
+           @bind-PageSize="_pageSize"
+           @bind-PageIndex="_pageIndex"
+           @bind-SelectedRows="_selectedRows"
+           Loading="@_tableLoading.Value"
+           Context="model"
+           Size="@ClientConstant.DefaultTableSize"
+           PaginationPosition="@ClientConstant.TablePaginationPosition"
+           RemoteDataSource>
+        <TitleTemplate>
+            <ResourceAuthorize ResourceKey="system_manager_code_type_refresh">
+                <TableSearch TDto="CodeTypeDto" OnSearch="OnTableSearch" @ref="this._tableSearch" Settings="_tableSearchSettings" CustomLocalizer="Localizer"></TableSearch>
+            </ResourceAuthorize>
+            <Row>
+                <AntDesign.Col Span="8">
+                    <ResourceAuthorize ResourceKey="system_manager_code_type_delete_selected">
+                        <Button Type="@ButtonType.Primary" Icon="delete" Danger OnClick="OnClickDeletes" Loading="_deletesBtnLoading">
+                            @Localizer[nameof(SharedLocalResource.DeleteSelected)]
+                        </Button>
+                    </ResourceAuthorize>
+                </AntDesign.Col>
+                <AntDesign.Col Span="16" Style="text-align:right">
+                    <Space>
+                        <ResourceAuthorize ResourceKey="system_manager_code_type_refresh_code_util_cache">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="sync" OnClick="OnClickRefreshDictHelperCache">
+                                    @Localizer[nameof(DictResource.RefreshDictHelperCache)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                        <ResourceAuthorize ResourceKey="system_manager_code_type_export">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="export" OnClick="OnClickExport" Loading="_exportDataLoading">
+                                    @Localizer[nameof(SharedLocalResource.Export)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                        <ResourceAuthorize ResourceKey="system_manager_code_type_add">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="plus" OnClick="OnClickAdd">
+                                    @Localizer[nameof(SharedLocalResource.Add)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+
+                        <ResourceAuthorize ResourceKey="system_manager_code_type_refresh">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="reload" OnClick="ReLoadTable">
+                                    @Localizer[nameof(SharedLocalResource.Refresh)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                        <ResourceAuthorize ResourceKey="system_manager_code_type_download_seed_data">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="download" OnClick="OnClickShowSeedData">
+                                    @Localizer[nameof(SharedLocalResource.SeedData)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                    </Space>
+                </AntDesign.Col>
+            </Row>
+
+        </TitleTemplate>
+        <ColumnDefinitions>
+            <Selection Key="@(model.Id.ToString())" Width="5%" Hidden="@_userUnauthorizedResources["system_manager_code_type_delete_selected"]" />
+            <Column @bind-Field="@model.Id" Filterable />
+            <Column @bind-Field="@model.CodeTypeName" Filterable />
+            <Column @bind-Field="@model.CodeTypeValue" Filterable />
+            <Column @bind-Field="@model.Remark" Filterable />
+            <Column @bind-Field="@model.IsLocked" Filterable>
+                <ResourceAuthorize ResourceKey="system_manager_code_type_lock">
+                    <Authorized>
+                        <Switch @bind-Value="@model.IsLocked" OnChange="e=>OnChangeIsLocked(model,e)" Loading="_lockBtnLoading[model]"></Switch>
+                    </Authorized>
+                    <NotAuthorized>
+                        <TagYesNo Yes="model.IsLocked"></TagYesNo>
+                    </NotAuthorized>
+                </ResourceAuthorize>
+            </Column>
+            <Column @bind-Field="@model.CreatedTime" Format="@ClientConstant.DateTimeFormat" Sortable DefaultSortOrder="@SortDirection.Descending" />
+            <ActionColumn>
+                <Space>
+                    <ResourceAuthorize ResourceKey="system_manager_code_type_edit">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Edit)]" ArrowPointAtCenter="true">
+                                <Button Icon="edit" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnClickEdit(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="system_manager_code_type_detail">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Detail)]" ArrowPointAtCenter="true">
+                                <Button Icon="eye" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnClickDetail(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="system_manager_code_type_codes_manager">
+                        <SpaceItem>
+                            <Tooltip Title="@(Localizer[nameof(DictResource.CodeManager)])" ArrowPointAtCenter="true">
+                                <Button Icon="select" Type="@ButtonType.Primary" OnClick="()=>OnClickShowCodesManager(model)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="system_manager_code_type_delete">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Delete)]" ArrowPointAtCenter="true">
+                                <Button Icon="delete" Type="@ButtonType.Primary" Danger OnClick="()=>OnClickDelete(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+
+                </Space>
+            </ActionColumn>
+        </ColumnDefinitions>
+    </Table>
+</div>

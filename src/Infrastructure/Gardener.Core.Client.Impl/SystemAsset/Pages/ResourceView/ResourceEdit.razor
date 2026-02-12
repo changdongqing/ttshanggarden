@@ -1,0 +1,111 @@
+﻿@inherits EditOperationDialogBase<ResourceDto, Guid,SystemAssetResource>
+@if (_editModel != null)
+{
+    <Form @ref="_editForm"
+          Loading="@_dialogLoading.Value"
+          Model="@_editModel"
+          LabelCol="new ColLayoutParam { Span = 8 }"
+          WrapperCol="new ColLayoutParam { Span = 16 }"
+          OnFinish="OnFormFinish"
+          Context="model"
+          ValidateMode="FormValidateMode.Complex"
+          Style="min-height:600px;">
+        <FormItem>
+            <Input @bind-Value="@model.Id" Disabled />
+        </FormItem>
+        <FormItem Label="@Localizer[nameof(SharedLocalResource.Parent)]">
+            <Input @bind-Value="@model.ParentId" Type="hidden" />
+            @if (resources != null && resources.Count > 0)
+            {
+                <TreeSelect TItemValue="string"
+                            TItem="ResourceDto"
+                            Style="width:100%;"
+                            DataSource="resources"
+                            @bind-Value="@ParentId"
+                            Placeholder="@Localizer[nameof(SharedLocalResource.PleaseSelect)]"
+                            AllowClear="false"
+                            TitleExpression="node=>node.DataItem.Name"
+                            KeyExpression="node =>node.DataItem.Id.ToString()"
+                            ChildrenExpression="node =>node.DataItem.Children?.ToList()"
+                            IsLeafExpression="node =>node.DataItem.Children==null || !node.DataItem.Children.Any()"
+                            ShowExpand="true"
+                            DisabledExpression="node=>node.DataItem.Id.Equals(_editModel.Id)">
+                </TreeSelect>
+            }
+        </FormItem>
+        <FormItem>
+            <SimpleSelect @bind-Value="@model.ModuleName">
+                <SelectOptions>
+                    @foreach (var item in modules)
+                    {
+                        <SimpleSelectOption Value="@item.Name" Label="@($"{item.Name}({item.Description})")"></SimpleSelectOption>
+                    }
+                </SelectOptions>
+            </SimpleSelect>
+        </FormItem>
+        <FormItem>
+            <Input @bind-Value="@model.Name" />
+        </FormItem>
+        <FormItem Rules="[_uniqueValueValidatorRule]">
+            <Input @bind-Value="@model.Key" />
+        </FormItem>
+        <FormItem>
+            <RadioGroup @bind-Value="@(model.Type)">
+                @foreach (var gitem in EnumHelper.EnumToDictionary<ResourceType>())
+                {
+                    <Radio Value="gitem.Key" Disabled="@(model.ParentId.HasValue && gitem.Key.Equals(ResourceType.Root))">@Localizer[gitem.Value]</Radio>
+                }
+            </RadioGroup>
+        </FormItem>
+        @if (model.Type.Equals(ResourceType.Menu))
+        {
+            <FormItem>
+                <Input @bind-Value="@model.Path" Placeholder="/module/view" />
+            </FormItem>
+            <FormItem>
+                <Input @bind-Value="@model.Icon" />
+            </FormItem>
+            <FormItem>
+                <Switch @bind-Value="@model.Hide"></Switch>
+            </FormItem>
+        }
+        <FormItem>
+            <AntDesign.InputNumber @bind-Value="@model.Order" />
+        </FormItem>
+        <FormItem>
+            <Switch @bind-Value="@model.SupportMultiTenant"></Switch>
+        </FormItem>
+        <FormItem>
+            <Switch @bind-Value="@model.IsLocked"></Switch>
+        </FormItem>
+        <FormItem>
+            <TextArea AutoSize="true" MinRows="2" MaxRows="6" @bind-Value="@model.Remark"></TextArea>
+        </FormItem>
+        @if (this.Options.Type.Equals(OperationDialogInputType.Edit) || this.Options.Type.Equals(OperationDialogInputType.Select))
+        {
+            <FormItem Label="@Localizer[nameof(SharedLocalResource.CreatedTime)]">
+                <span>@model.CreatedTime.ToString(ClientConstant.DateTimeFormat)</span>
+            </FormItem>
+            <FormItem Label="@Localizer[nameof(SharedLocalResource.UpdatedTime)]">
+                <span>@model.UpdatedTime?.ToString(ClientConstant.DateTimeFormat)</span>
+            </FormItem>
+        }
+        <FormItem WrapperColOffset="8" WrapperColSpan="16">
+            <Space>
+                @if (!OperationDialogInputType.Select.Equals(this.Options.Type))
+                {
+                    <SpaceItem>
+                        <Button Type="@ButtonType.Primary" OnClick="OnGoToSubmit">
+                            @Localizer[nameof(SharedLocalResource.Save)]
+                        </Button>
+                    </SpaceItem>
+                }
+                <SpaceItem>
+                    <Button OnClick="_=>OnFormCancel()">
+                        @Localizer[nameof(SharedLocalResource.Cancel)]
+                    </Button>
+                </SpaceItem>
+            </Space>
+        </FormItem>
+    </Form>
+}

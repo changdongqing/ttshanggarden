@@ -1,0 +1,106 @@
+﻿@inherits TreeTableBase<DeviceGroupDto, int, DeviceGroupEdit,IotLocalResource>
+@page "/iot/device_group"
+<div>
+    <Table @ref="_table"
+           TItem="DeviceGroupDto"
+           DataSource="@_datas"
+           OnChange="@onChange"
+           TreeChildren="item=>item.Children"
+           @bind-SelectedRows="_selectedRows"
+           Loading="@_tableLoading.Value"
+           HidePagination="true"
+           IndentSize="25"
+           Context="model"
+           DefaultExpandAllRows="true"
+           PaginationPosition="@ClientConstant.TablePaginationPosition"
+           Size="@ClientConstant.DefaultTableSize">
+        <TitleTemplate>
+            <Row>
+                <AntDesign.Col Span="8">
+                    <ResourceAuthorize ResourceKey="iot_device_group_delete_selected">
+                        <Button Type="@ButtonType.Primary" Icon="delete" Danger OnClick="OnClickDeletes">
+                            @Localizer[nameof(SharedLocalResource.DeleteSelected)]
+                        </Button>
+                    </ResourceAuthorize>
+                </AntDesign.Col>
+                <AntDesign.Col Span="16" Style="text-align:right">
+                    <Space>
+                        <ResourceAuthorize ResourceKey="iot_device_group_add">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="plus" OnClick="OnClickAdd">
+                                    @Localizer[nameof(SharedLocalResource.Add)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                        <ResourceAuthorize ResourceKey="iot_device_group_refresh">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="reload" OnClick="OnReLoadTable">
+                                    @Localizer[nameof(SharedLocalResource.Refresh)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                        <ResourceAuthorize ResourceKey="iot_device_group_export">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="export" OnClick="OnClickExport" Loading="_exportDataLoading">
+                                    @Localizer[nameof(SharedLocalResource.Export)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                    </Space>
+                </AntDesign.Col>
+            </Row>
+
+        </TitleTemplate>
+        <ColumnDefinitions>
+            <Selection CheckStrictly Width="5%" />
+             <Column @bind-Field="@model.Name" Width="15%" Title="@Localizer[nameof(IotLocalResource.Name)]" />
+            <Column Width="10%" @bind-Field="@model.Tenant" Title="@Localizer[nameof(SharedLocalResource.Tenant)]" Hidden="@_userUnauthorizedResources[CommonResourceKeys.SystemTenantAdministratorKey]">
+                <span>@model.Tenant?.Name</span>
+            </Column>
+             <Column @bind-Field="@model.Order" Width="5%" Title="@Localizer[nameof(SharedLocalResource.Order)]" />
+            <Column @bind-Field="@model.IsLocked" Width="10%" Title="@Localizer[nameof(SharedLocalResource.IsLocked)]">
+                <ResourceAuthorize ResourceKey="iot_device_group_lock">
+                    <Authorized>
+                        <Switch @bind-Value="@model.IsLocked" OnChange="e=>OnChangeIsLocked(model,e)" Loading="_lockBtnLoading[model]"></Switch>
+                    </Authorized>
+                    <NotAuthorized>
+                        <TagYesNo Yes="model.IsLocked"></TagYesNo>
+                    </NotAuthorized>
+                </ResourceAuthorize>
+            </Column>
+            <Column @bind-Field="@model.CreatedTime" Format="@ClientConstant.DateTimeFormat" Width="15%" Title="@Localizer[nameof(SharedLocalResource.CreatedTime)]" />
+            <ActionColumn Width="10%">
+                <Space>
+                    <ResourceAuthorize ResourceKey="iot_device_group_add_children">
+                        <SpaceItem>
+                            <Tooltip Title="@(Localizer[nameof(SharedLocalResource.AddChildren)])" ArrowPointAtCenter="true">
+                                <Button Icon="subnode" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnClickAddChildren(model)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="iot_device_group_edit">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Edit)]" ArrowPointAtCenter="true">
+                                <Button Icon="edit" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnClickEdit(model)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="iot_device_group_detail">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Detail)]" ArrowPointAtCenter="true">
+                                <Button Icon="eye" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnClickDetail(model)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="iot_device_group_delete">
+                        <SpaceItem>
+                            <Tooltip Title="@(Localizer[nameof(SharedLocalResource.DeleteAndIncludChildren)])" ArrowPointAtCenter="true">
+                                <Button Icon="delete" Type="@ButtonType.Primary" Danger OnClick="()=>OnClickDelete(model)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                </Space>
+            </ActionColumn>
+        </ColumnDefinitions>
+    </Table>
+</div>

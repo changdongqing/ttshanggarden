@@ -1,0 +1,152 @@
+﻿@inherits EditOperationDialogBase<UserDto, int,UserCenterResource>
+@if (_editModel != null)
+{
+    <Form Loading="@_dialogLoading.Value"
+          Model="@_editModel"
+          LabelCol="new ColLayoutParam { Span = 8 }"
+          WrapperCol="new ColLayoutParam { Span = 16 }"
+          OnFinish="OnFormFinish"
+          Context="model">
+        <Row Gutter="24">
+            <GridCol Span="11">
+                <Divider Orientation="left" Style="font-weight:bold">
+                    @Localizer[nameof(UserCenterResource.BasicInformation)]
+                </Divider>
+                <ResourceAuthorize ResourceKey="@CommonResourceKeys.SystemTenantAdministratorKey">
+                    <FormItem Label="@Localizer[nameof(SharedLocalResource.Tenant)]">
+                        <Select DataSource="@_tenants"
+                                @bind-Value="@model.TenantId"
+                                ValueName="@nameof(SystemTenantDto.Id)"
+                                LabelName="@nameof(SystemTenantDto.Name)"
+                                TItem="SystemTenantDto"
+                                TItemValue="Guid ?"
+                                Disabled="base.operationIsOnlyReadData"
+                                AllowClear>
+                        </Select>
+                    </FormItem>
+                </ResourceAuthorize>
+                <FormItem Label="@Localizer[nameof(SharedLocalResource.Avatar)]">
+                    @if (!base.operationIsOnlyReadData)
+                    {
+
+                        <Tooltip Placement="Placement.LeftTop" Title="@Localizer[nameof(UserCenterResource.ClickUpdateAvatar)]">
+                            <a @onclick="_ => OnAvatarClick(model)">
+                                <Avatar Src="@model.Avatar" />
+                            </a>
+                        </Tooltip>
+
+                    }
+                    else
+                    {
+                        <Avatar Src="@model.Avatar" />
+                    }
+                </FormItem>
+                <FormItem Label="@Localizer[nameof(UserCenterResource.Dept)]">
+                    @if (deptDatas != null)
+                    {
+                        <TreeSelect TItemValue="string"
+                                    TItem="DeptDto"
+                                    Style="width:100%;"
+                                    DataSource="deptDatas"
+                                    @bind-Value="@DeptId"
+                                    Placeholder="@Localizer[nameof(SharedLocalResource.PleaseSelect)]"
+                                    AllowClear
+                                    TitleExpression="node => node.DataItem.Name"
+                                    KeyExpression="node => node.DataItem.Id.ToString()"
+                                    ChildrenExpression="node => node.DataItem.Children?.ToList()"
+                                    IsLeafExpression="node => node.DataItem.Children == null"
+                                    Disabled="base.operationIsOnlyReadData"
+                                    TreeDefaultExpandAll>
+                        </TreeSelect>
+                    }
+                </FormItem>
+                <FormItem Label="@Localizer[nameof(UserCenterResource.Position)]">
+                    <Select DataSource="@positions"
+                            @bind-Value="@model.PositionId"
+                            ValueName="@nameof(PositionDto.Id)"
+                            LabelName="@nameof(PositionDto.Name)"
+                            OnSelectedItemChanged="OnSelectedItemChangedHandler"
+                            TItem="PositionDto"
+                            TItemValue="int?"
+                            Disabled="base.operationIsOnlyReadData"
+                            AllowClear>
+                    </Select>
+                </FormItem>
+                <FormItem>
+                    <Input @bind-Value="@model.UserName" />
+                </FormItem>
+                <FormItem>
+                    <Flex Justify="space-between">
+                        <InputPassword @bind-Value="@model.Password" AllowClear=true Disabled="base.operationIsOnlyReadData" />
+                        @if (base.operationCanChangeData)
+                        {
+                            <GenerateRandomCode @bind-Value="@model.Password"></GenerateRandomCode>
+                        }
+                    </Flex>
+                </FormItem>
+                <FormItem>
+                    <Input @bind-Value="@model.NickName" AllowClear=true Disabled="base.operationIsOnlyReadData" />
+                </FormItem>
+                <FormItem>
+                    <RadioGroup @bind-Value="@(model.Gender)" Disabled="base.operationIsOnlyReadData">
+                        @foreach (var gitem in EnumHelper.EnumToDictionary<Gender>())
+                        {
+                            <Radio Value="@(gitem.Key)">@Localizer[gitem.Value]</Radio>
+                        }
+                    </RadioGroup>
+                </FormItem>
+                <FormItem>
+                    <Switch @bind-Value="@model.IsLocked" Disabled="base.operationIsOnlyReadData"></Switch>
+                </FormItem>
+            </GridCol>
+            <GridCol Offset="2" Span="11">
+                <Divider Orientation="left" Style="font-weight:bold">
+                    @Localizer[nameof(UserCenterResource.ContactInformation)]
+                </Divider>
+                <FormItem>
+                    <Input @bind-Value="@model.PhoneNumber" Disabled="base.operationIsOnlyReadData" />
+                </FormItem>
+                <FormItem>
+                    <Switch @bind-Value="@model.PhoneNumberConfirmed" Disabled="base.operationIsOnlyReadData"></Switch>
+                </FormItem>
+                <FormItem>
+                    <Input @bind-Value="@model.Email" Disabled="base.operationIsOnlyReadData" />
+                </FormItem>
+                <FormItem>
+                    <Switch @bind-Value="@model.EmailConfirmed" Disabled="base.operationIsOnlyReadData"></Switch>
+                </FormItem>
+                @if (model.UserExtension == null)
+                {
+                    model.UserExtension = new UserExtensionDto() { UserId = model.Id };
+                }
+                <FormItem>
+                    <Input @bind-Value="@model.UserExtension.QQ" Disabled="base.operationIsOnlyReadData" />
+                </FormItem>
+                <FormItem>
+                    <Input @bind-Value="@model.UserExtension.WeChat" Disabled="base.operationIsOnlyReadData" />
+                </FormItem>
+            </GridCol>
+        </Row>
+        <Row Gutter="24">
+            <GridCol Offset="6" Span="18">
+                <FormItem WrapperCol="new ColLayoutParam { Offset = 4, Span = 20 }">
+                    <Space>
+                        @if (!OperationDialogInputType.Select.Equals(this.Options.Type))
+                        {
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" HtmlType="submit">
+                                    @Localizer[nameof(SharedLocalResource.Save)]
+                                </Button>
+                            </SpaceItem>
+                        }
+                        <SpaceItem>
+                            <Button OnClick="OnFormCancel">
+                                @Localizer[nameof(SharedLocalResource.Cancel)]
+                            </Button>
+                        </SpaceItem>
+                    </Space>
+                </FormItem>
+            </GridCol>
+        </Row>
+    </Form>
+}

@@ -1,0 +1,66 @@
+﻿@page "/account/center"
+@if (userDto != null)
+{
+    <h3>@userDto.UserName</h3>
+
+    <Space Size=@(("8", "8")) Wrap Align="start">
+        <SpaceItem>
+            <GridCol>
+                 <Card Title=@localizer[nameof(UserCenterResource.PersonalInformation)] Style="width: 350px" Bordered Hoverable>
+                <ChildContent>
+                    <body>
+                        <p style="margin-top:10px">
+                            <Avatar Src="@userDto.Avatar" /><Text>@userDto.UserName</Text>
+                        </p>
+                        <p>
+                             <Text>@localizer[nameof(UserCenterResource.UserName)]：</Text><Text>@userDto.UserName</Text>
+                        </p>
+                        <p>
+                             <Text>@localizer[nameof(UserCenterResource.NickName)]： </Text><Text>@userDto.NickName</Text>
+                        </p>
+                        <p>
+                             <Text>@localizer[nameof(UserCenterResource.PhoneNumber)]：</Text><Text>@userDto.PhoneNumber</Text>
+                        </p>
+                        <p>
+                             <Text>@localizer[nameof(UserCenterResource.Gender)]： </Text><Text>@userDto.Gender</Text>
+                        </p>
+
+                    </body>
+                </ChildContent>
+            </Card>
+        </GridCol>
+    </SpaceItem>
+    <SpaceItem>
+        <GridCol>
+             <Card Title=@localizer[nameof(UserCenterResource.ModifyPersonalInformation)] Bordered Hoverable>
+                <ChildContent>
+                    <Form Model="@userDto"
+                          LabelColSpan="8"
+                          WrapperColSpan="16">
+                        <FormItem Label="@localizer[nameof(UserCenterResource.UserName)]">
+                            <Input @bind-Value="@context.UserName" />
+                        </FormItem>
+                        <FormItem Label="@localizer[nameof(UserCenterResource.NickName)]">
+                            <Input @bind-Value="@context.NickName" />
+                        </FormItem>
+                        <FormItem Label="@localizer[nameof(UserCenterResource.Gender)]">
+                            <RadioGroup @bind-Value="@(context.Gender)">
+                                @foreach (var gitem in EnumHelper.EnumToDictionary<Gender>())
+                                    {
+                                        <Radio Value="@(gitem.Key)">@gitem.Value</Radio>
+                                    }
+                                </RadioGroup>
+                            </FormItem>
+
+                            <FormItem WrapperColOffset="8" WrapperColSpan="16">
+                                <Button Type="@ButtonType.Primary" OnClick="SaveUserInfo">
+                                    @localizer[nameof(SharedLocalResource.Save)]
+                                </Button>
+                            </FormItem>
+                        </Form>
+                    </ChildContent>
+                </Card>
+            </GridCol>
+        </SpaceItem>
+    </Space>
+}

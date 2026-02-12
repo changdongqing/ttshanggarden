@@ -1,0 +1,147 @@
+﻿@page "/weighbridge/weighbridge_contorl"
+@using AntDesign.Charts
+@inherits OperationDialogBase<Guid?,bool,WeighbridgeLocalResource>
+<Row Gutter="24" Style="margin-top:10px;">
+    <Col Span="20">
+    <Flex Wrap="wrap" Gap="small">
+            @if (currentWeighbridgeConfig != null && !string.IsNullOrEmpty(currentWeighbridgeConfig.DeviceIds))
+                {
+                    var ids = currentWeighbridgeConfig.DeviceIds.Split(",").Select(x => Guid.Parse(x));
+                    foreach (DeviceDto device in currentWeighbridgeConfig.Devices)
+                    {
+                        Guid deviceId = device.Id;
+                        string key = currentWeighbridgeConfig.Id.ToString() + deviceId;
+                        string style = $"width:{cardWidth}px;height:{cardHeight}px;";
+                        string valueStyle = $"color:#0a0a09;font-size:{cardFontSize}px;font-weight: bold;";
+                    <Card Bordered="true" Style="@style">
+                        <Extra>
+                                @if (channelStates[key] == 0)
+                                {
+                                <Icon Type="info-circle" Theme="outline" Style="color:lightgrey;" />
+                                }
+                                else if (channelStates[key] == 1)
+                                {
+                                <Icon Type="check-circle" Theme="outline" Style="color:green;" />
+                                }
+                                else if (channelStates[key] == 2)
+                                {
+                                <Icon Type="close-circle" Theme="outline" Style="color:red;" />
+                                }
+                                else if (channelStates[key] == 3)
+                                {
+                                <Icon Type="sync" Theme="outline" Style="color:#ff8f00;" Spin />
+                                }
+                                else if (channelStates[key] == 4)
+                                {
+                                <Icon Type="check-circle" Theme="fill" Style="color:green;" />
+                                }
+                        </Extra>
+                        <TitleTemplate>
+                                @($"设备({device.Name})")
+                        </TitleTemplate>
+                        <Body>
+                            <Statistic Value="channelValues[key]" Precision="channelPrecisions[key].Value" Suffix="@channelUnits[key].Name" ValueStyle="@valueStyle">
+                            </Statistic>
+                            <Space Style="margin-top:10px;">
+                                <SpaceItem>
+                                        @if (channelNetweights[key])
+                                        {
+                                        <Tag Color="warning">去皮</Tag>
+                                        }
+                                        else
+                                        {
+                                        <Tag Color="default">未去皮</Tag>
+                                        }
+                                </SpaceItem>
+                            </Space>
+                        </Body>
+                    </Card>
+                    }
+                }
+        </Flex>
+        </Col>
+        <Col Span="4">
+            @if (weighbridgeConfigs != null)
+        {
+        <Select DataSource="weighbridgeConfigs"
+                TItem="WeighbridgeConfigDto"
+                TItemValue="Guid?"
+                ItemLabel="item=>item.Name"
+                ItemValue="item=>item.Id"
+                @bind-Value="currentWeighbridgeConfigId"
+                OnSelectedItemChanged="OnSelectedItemChanged">
+        </Select>
+        }
+    <Statistic Style="margin-top:10px;" Title="总计" Value="total" Precision="totalPrecision" Suffix="@totalUnit" ValueStyle="color:#3f8600;font-size:24px;">
+    </Statistic>
+    <Divider>控制</Divider>
+    <Space>
+        <SpaceItem>
+            <Button Size="@ButtonSize.Small" Type="@ButtonType.Primary" OnClick="ChangeUnitType">修改</Button>
+        </SpaceItem>
+        <SpaceItem Style="min-width: 32px;">
+            <span>单位:</span>
+        </SpaceItem>
+        <SpaceItem>
+            <Select Size="@InputSize.Small" TItem="UnitType" TItemValue="UnitType" ItemLabel="x=>x.Name" ItemValue="x=>x" DataSource="@UnitType.Types" @bind-Value=unitType></Select>
+        </SpaceItem>
+    </Space>
+    <br />
+    <Space Style="margin-top:10px;">
+        <SpaceItem>
+            <Button Size="@ButtonSize.Small" Type="@ButtonType.Primary" OnClick="ChangePrecisionType">修改</Button>
+        </SpaceItem>
+        <SpaceItem Style="min-width: 32px;">
+            <span>小数:</span>
+        </SpaceItem>
+        <SpaceItem>
+            <Select Size="@InputSize.Small" TItem="PrecisionType" TItemValue="PrecisionType" ItemLabel="x=>x.Name" ItemValue="x=>x" DataSource="@PrecisionType.Types" @bind-Value=precisionType></Select>
+        </SpaceItem>
+    </Space>
+    <br />
+    <Space Style="margin-top:10px;">
+        <SpaceItem>
+            <Button Size="@ButtonSize.Small" Type="@ButtonType.Primary" OnClick="ChangeNetweight">修改</Button>
+        </SpaceItem>
+        <SpaceItem Style="min-width: 32px;">
+            <span>去皮:</span>
+        </SpaceItem>
+        <SpaceItem>
+            <Switch Size="@InputSize.Small" @bind-Value=netweight></Switch>
+        </SpaceItem>
+    </Space>
+    <br />
+    <Space Style="margin-top:10px;">
+        <SpaceItem>
+            <Button Size="@ButtonSize.Small" Type="@ButtonType.Primary" OnClick="ZeroOut">校零</Button>
+        </SpaceItem>
+    </Space>
+    <div style="margin-top:10px;">
+        <Button Size="@ButtonSize.Default" Type="@ButtonType.Primary" OnClick="ReadValue">手动读值</Button>
+    </div>
+    <Divider>界面</Divider>
+    <Space Style="margin-top:10px;">
+        <SpaceItem Style="min-width: 32px;">
+            <span>宽高:</span>
+        </SpaceItem>
+        <SpaceItem>
+            <InputNumber Size="@InputSize.Small" @bind-Value=cardWidth></InputNumber>
+        </SpaceItem>
+        <SpaceItem>
+            X
+        </SpaceItem>
+        <SpaceItem>
+            <InputNumber Size="@InputSize.Small" @bind-Value=cardHeight></InputNumber>
+        </SpaceItem>
+    </Space>
+    <br />
+    <Space Style="margin-top:10px;">
+        <SpaceItem Style="min-width: 32px;">
+            <span>字体:</span>
+        </SpaceItem>
+        <SpaceItem>
+            <InputNumber Size="@InputSize.Small" @bind-Value=cardFontSize></InputNumber>
+        </SpaceItem>
+    </Space>
+    </Col>
+</Row>

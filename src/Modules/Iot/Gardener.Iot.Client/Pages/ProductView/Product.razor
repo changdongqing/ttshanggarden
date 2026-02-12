@@ -1,0 +1,135 @@
+﻿@*page:Product.razor*@
+@*gardener-time:2024-06-07 17:53:55*@
+@page "/iot/product"
+@inherits ListOperateTableBase<ProductDto, Guid, ProductEdit,IotLocalResource>
+
+@{
+    TableFilter<string>[] productTypeDictFilters = DictHelper.GetCodesFromCache<ProductDto>(p => p.ProductType)?.Select(x => { return new TableFilter<string>() { Text = Localizer[x.CodeName], Value = x.CodeValue }; }).ToArray() ?? new TableFilter<string>[0];
+
+    TableFilter<IdentityType>[] identityTypeEnumFilters = EnumHelper.EnumToList<IdentityType>().Select(x => { return new TableFilter<IdentityType>() { Text = Localizer[EnumHelper.GetEnumDescriptionOrName(x)], Value = x }; }).ToArray();
+}
+<div>
+    <Table @ref="_table"
+           TItem="ProductDto"
+           DataSource="_datas"
+           Total="_total"
+           OnChange="OnChange"
+           @bind-PageSize="_pageSize"
+           @bind-PageIndex="_pageIndex"
+           @bind-SelectedRows="_selectedRows"
+           Loading="_tableLoading.Value"
+           Context="model"
+           Size="ClientConstant.DefaultTableSize"
+           PaginationPosition="@ClientConstant.TablePaginationPosition"
+           RemoteDataSource>
+        <TitleTemplate>
+            <ResourceAuthorize ResourceKey="iot_product_search">
+                <TableSearch TDto="ProductDto" @ref="this._tableSearch" OnSearch="OnTableSearch" Settings="_tableSearchSettings" CustomLocalizer="Localizer" />
+            </ResourceAuthorize>
+            <Row>
+                <AntDesign.Col Span="8">
+                    <ResourceAuthorize ResourceKey="iot_product_selected">
+                        <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Delete" Danger OnClick="OnClickDeletes" Loading="_deletesBtnLoading">
+                            @Localizer[nameof(SharedLocalResource.DeleteSelected)]
+                        </Button>
+                    </ResourceAuthorize>
+                </AntDesign.Col>
+                <AntDesign.Col Span="16" Style="text-align:right">
+                    <Space>
+                        <ResourceAuthorize ResourceKey="iot_product_add">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Plus" OnClick="OnClickAdd">
+                                    @Localizer[nameof(SharedLocalResource.Add)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                        <ResourceAuthorize ResourceKey="iot_product_refresh">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Reload" OnClick="ReLoadTable">
+                                    @Localizer[nameof(SharedLocalResource.Refresh)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                        <ResourceAuthorize ResourceKey="iot_product_export">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="export" OnClick="OnClickExport" Loading="_exportDataLoading">
+                                    @Localizer[nameof(SharedLocalResource.Export)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                    </Space>
+                </AntDesign.Col>
+            </Row>
+        </TitleTemplate>
+        <ColumnDefinitions>
+            <Selection Key="@model.Id.ToString()" Hidden="@_userUnauthorizedResources["iot_product_selected"]" />
+            <Column @bind-Field="@model.Id" Filterable Width="150" >
+                <GuidView Value="@model.Id"></GuidView>
+            </Column>
+            <Column TData="string" Title="@Localizer[nameof(SharedLocalResource.Tenant)]" Hidden="@_userUnauthorizedResources[CommonResourceKeys.SystemTenantAdministratorKey]">
+                <span>@model.Tenant?.Name</span>
+            </Column>
+            <Column @bind-Field="@model.ProductName" Filterable Sortable />
+            <Column @bind-Field="@model.ProductType" TData="string" Filterable Sortable Filters="productTypeDictFilters">
+                @{
+                    var productTypeCodeName = DictHelper.GetCodeNameFromCache<ProductDto>(() => model.ProductType);
+                    if (productTypeCodeName != null)
+                    {
+                        productTypeCodeName = Localizer[productTypeCodeName];
+                    }
+                }
+                <span>@(productTypeCodeName)</span>
+            </Column>
+            <Column @bind-Field="@model.ProductImages" Width="266">
+                @{
+                    var images = System.Text.Json.JsonSerializer.Deserialize<List<UploadFileItem>>(model.ProductImages);
+                }
+                @if (images!=null)
+                {
+                    <ImagePreviewGroup>
+                        @foreach (var item in images)
+                        {
+                            <Image Width="50" Src="@item.Url" Alt="@item.FileName" />
+                        }
+                    </ImagePreviewGroup>
+                }
+            </Column>
+            <Column @bind-Field="@model.IsLocked" Filterable Sortable>
+                <ResourceAuthorize ResourceKey="iot_product_lock">
+                    <Authorized>
+                        <Switch @bind-Value="@model.IsLocked" OnChange="e=>OnChangeIsLocked(model,e)" Loading="_lockBtnLoading[model]"></Switch>
+                    </Authorized>
+                    <NotAuthorized>
+                        <TagYesNo Yes="model.IsLocked"></TagYesNo>
+                    </NotAuthorized>
+                </ResourceAuthorize>
+            </Column>
+            <Column @bind-Field="@model.CreatedTime" Format="@ClientConstant.DateTimeFormat" Sortable DefaultSortOrder="@SortDirection.Descending" />
+            <ActionColumn>
+                <Space>
+                    <ResourceAuthorize ResourceKey="iot_product_edit">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Edit)]" ArrowPointAtCenter="true">
+                                <Button Icon="@IconType.Outline.Edit" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnClickEdit(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="iot_product_detail">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Detail)]" ArrowPointAtCenter="true">
+                                <Button Icon="@IconType.Outline.Eye" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnClickDetail(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="iot_product_delete">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Delete)]" ArrowPointAtCenter="true">
+                                <Button Icon="@IconType.Outline.Delete" Type="@ButtonType.Primary" Danger OnClick="()=>OnClickDelete(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                </Space>
+            </ActionColumn>
+        </ColumnDefinitions>
+    </Table>
+</div>

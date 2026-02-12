@@ -1,0 +1,78 @@
+﻿@if (!string.IsNullOrEmpty(guid) && !string.IsNullOrEmpty(sortGuid))
+{
+    <Tooltip>
+        <TitleTemplate>
+            <span style="white-space: nowrap;">@guid
+                @if (CopyBtnPosition.Equals(CopyBtnPositionType.Tips))
+                {
+                    <Button Shape="ButtonShape.Circle" Icon="@IconType.Outline.Copy" Size="@ButtonSize.Small" OnClick="CopyValue" />
+                }
+                </span>
+        </TitleTemplate>
+        <ChildContent>
+            <span>@sortGuid</span>
+            @if (CopyBtnPosition.Equals(CopyBtnPositionType.Content))
+            {
+                <Button Shape="ButtonShape.Circle" Icon="@IconType.Outline.Copy" Size="@ButtonSize.Small" OnClick="CopyValue" />
+            }
+        </ChildContent>
+    </Tooltip>
+}
+
+@code {
+
+    public enum CopyBtnPositionType
+    {
+        Content,
+        Tips
+    }
+    [Inject]
+    private IJsTool js { get; set; } = null!;
+    [Inject]
+    private MessageService messageService { get; set; } = null!;
+    [Inject]
+    private ILocalizationLocalizer Localizer { get; set; } = null!;
+    /// <summary>
+    /// Guid
+    /// </summary>
+    [Parameter]
+    public Guid? Value { get; set; }
+    /// <summary>
+    /// Guid
+    /// </summary>
+    [Parameter]
+    public string? StringValue { get; set; }
+    /// <summary>
+    /// 复制按钮位置
+    /// </summary>
+    [Parameter]
+    public CopyBtnPositionType CopyBtnPosition { get; set; } = CopyBtnPositionType.Tips;
+    private string? guid;
+    private string? sortGuid;
+
+    private Task CopyValue()
+    {
+        if (string.IsNullOrEmpty(guid)) { return Task.CompletedTask; }
+        messageService.Success(Localizer.Combination(nameof(SharedLocalResource.Copy), nameof(SharedLocalResource.Success)));
+        return js.Document.copyTextToClipboard(guid);
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Value.HasValue)
+        {
+            guid = Value.Value.ToString();
+        }
+        else if (!string.IsNullOrEmpty(StringValue) && Guid.TryParse(StringValue, out Guid result))
+        {
+            guid = result.ToString();
+        }
+
+        if (!string.IsNullOrEmpty(guid))
+        {
+            sortGuid = guid.Substring(0, 4) + "..." + guid.Substring(guid.Length - 4, 4);
+        }
+
+        base.OnInitialized();
+    }
+}

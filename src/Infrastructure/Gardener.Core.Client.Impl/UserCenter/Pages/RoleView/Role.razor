@@ -1,0 +1,116 @@
+﻿@page "/user_center/role"
+@inherits ListOperateTableBase<RoleDto, int, RoleEdit,UserCenterResource>
+<div>
+    <Table @ref="_table"
+           TItem="RoleDto"
+           DataSource="@_datas"
+           Total="_total"
+           OnChange="@OnChange"
+           @bind-PageSize="_pageSize"
+           @bind-PageIndex="_pageIndex"
+           @bind-SelectedRows="_selectedRows"
+           Loading="@_tableLoading.Value"
+           Context="model"
+           RemoteDataSource
+           PaginationPosition="@ClientConstant.TablePaginationPosition"
+           Size="@ClientConstant.DefaultTableSize">
+        <TitleTemplate>
+            <ResourceAuthorize ResourceKey="user_center_role_refresh">
+                <TableSearch TDto="RoleDto" @ref="this._tableSearch" OnSearch="OnTableSearch" Settings="@_tableSearchSettings" CustomLocalizer="Localizer" />
+            </ResourceAuthorize>
+            <Row>
+                <AntDesign.Col Span="8">
+                    <ResourceAuthorize ResourceKey="user_center_role_delete_selected">
+                        <Button Type="@ButtonType.Primary" Icon="delete" Danger OnClick="OnClickDeletes" Loading="_deletesBtnLoading">
+                            @Localizer[nameof(SharedLocalResource.DeleteSelected)]
+                        </Button>
+                    </ResourceAuthorize>
+                </AntDesign.Col>
+                <AntDesign.Col Span="16" Style="text-align:right">
+                    <Space>
+                        <ResourceAuthorize ResourceKey="user_center_role_add">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="plus" OnClick="OnClickAdd">
+                                    @Localizer[nameof(SharedLocalResource.Add)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                        <ResourceAuthorize ResourceKey="user_center_role_refresh">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="reload" OnClick="ReLoadTable">
+                                    @Localizer[nameof(SharedLocalResource.Refresh)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                        <ResourceAuthorize ResourceKey="user_center_role_resource_download_seed_data">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="download" OnClick="OnDownloadClick">
+                                    @Localizer[nameof(SharedLocalResource.SeedData)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                    </Space>
+                </AntDesign.Col>
+            </Row>
+
+        </TitleTemplate>
+        <ColumnDefinitions>
+            <Selection Key="@(model.Id.ToString())" Hidden="@_userUnauthorizedResources["user_center_role_delete_selected"]" />
+            <Column TData="string" Title="@Localizer[nameof(SharedLocalResource.Tenant)]" Hidden="@_userUnauthorizedResources[CommonResourceKeys.SystemTenantAdministratorKey]">
+                <span>@model.Tenant?.Name</span>
+            </Column>
+            <Column @bind-Field="@model.Id" Sortable />
+            <Column @bind-Field="@model.Name" Filterable />
+            <Column @bind-Field="@model.Remark" Filterable />
+            <Column @bind-Field="@model.IsSuperAdministrator" Filterable Hidden="@_userUnauthorizedResources["user_center_role_set_is_super_administrator"]">
+                <TagYesNo Yes="model.IsSuperAdministrator"></TagYesNo>
+            </Column>
+            <Column @bind-Field="@model.IsDefault" Filterable>
+                <TagYesNo Yes="model.IsDefault"></TagYesNo>
+            </Column>
+            <Column @bind-Field="@model.IsLocked" Filterable>
+                <ResourceAuthorize ResourceKey="user_center_role_lock">
+                    <Authorized>
+                        <Switch @bind-Value="@model.IsLocked" OnChange="e=>OnChangeIsLocked(model,e)" Loading="_lockBtnLoading[model]"></Switch>
+                    </Authorized>
+                    <NotAuthorized>
+                        <TagYesNo Yes="model.IsLocked"></TagYesNo>
+                    </NotAuthorized>
+                </ResourceAuthorize>
+            </Column>
+            <Column @bind-Field="@model.CreatedTime" Format="@ClientConstant.DateTimeFormat" Sortable DefaultSortOrder="@SortDirection.Descending" />
+            <ActionColumn>
+                <Space>
+                    <ResourceAuthorize ResourceKey="user_center_role_edit">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Edit)]" ArrowPointAtCenter="true">
+                                <Button Icon="edit" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnClickEdit(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="user_center_role_set_resource">
+                        <SpaceItem>
+                            <Tooltip Title="@(Localizer[nameof(SharedLocalResource.BindingResource)])" ArrowPointAtCenter="true">
+                                <Button Icon="security-scan" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnEditRoleResourceClick(model)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="user_center_role_detail">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Detail)]" ArrowPointAtCenter="true">
+                                <Button Icon="eye" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnClickDetail(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="user_center_role_delete">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Delete)]" ArrowPointAtCenter="true">
+                                <Button Icon="delete" Type="@ButtonType.Primary" Danger OnClick="()=>OnClickDelete(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                </Space>
+            </ActionColumn>
+        </ColumnDefinitions>
+    </Table>
+</div>

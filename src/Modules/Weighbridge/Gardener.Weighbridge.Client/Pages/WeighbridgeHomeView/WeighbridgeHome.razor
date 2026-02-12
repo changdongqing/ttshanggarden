@@ -1,0 +1,133 @@
+﻿@inherits ReuseTabsPageBase
+@page "/weighbridge/home"
+@using Gardener.Core.AppManager.Dtos
+@using Gardener.Core.AppManager.Services
+@using Gardener.Core.Client.Settings
+@using Gardener.Core.QRCoder.Dtos
+@using Gardener.Core.QRCoder.Enums
+@using Gardener.Core.QRCoder.Services
+@using Microsoft.Extensions.Options
+<Flex Wrap="wrap" Gap="small">
+    <Card Bordered="true" Style="width: 400px;height:400px;">
+        <p>欢迎使用。</p>
+    </Card>
+    @if (apps != null)
+    {
+        @foreach (AppDto app in apps)
+        {
+            if (!lastAppVersions.ContainsKey(app.Id))
+            {
+                continue;
+            }
+            AppVersionDto? appVersion = lastAppVersions[app.Id];
+            if (appVersion == null)
+            {
+                continue;
+            }
+            <Card Title="@(app.AppName+"最新版本下载")" Style="width: 400px;height:400px;">
+                <Body>
+                    <p>最新版本:@appVersion.VersionName</p>
+                    <p>版本说明:@appVersion.VersionDescription</p>
+                    <p>
+                        下载地址:<Button Type="@ButtonType.Primary" Onclick="_=>Download(appVersion)">点击下载</Button>
+                        <Button Type="@ButtonType.Primary" Onclick="_=>ShowQr(appVersion)">扫码下载</Button>
+                    </p>
+                </Body>
+            </Card>
+        }
+    }
+</Flex>
+<Modal Title="扫码下载"
+@bind-Visible="@_visible">
+    <p>如果下载失败请刷新，<Button OnClick="SetQrImage" Type="@ButtonType.Primary">刷新</Button></p>
+    <Image Width="400px" Src="@qrImageBase64" />
+</Modal>
+@code
+{
+    [Inject]
+    private IAppService appService { get; set; } = null!;
+    [Inject]
+    private IAppVersionService appVersionService { get; set; } = null!;
+    [Inject]
+    private AppClientInfo appClientInfo { get; set; } = null!;
+    [Inject]
+    private Core.Client.JsTool.IJsTool jsTool { get; set; } = null!;
+    [Inject]
+    IOptions<ApiSettings> apiSettings { get; set; } = null!;
+    [Inject]
+    IAuthenticationStateManager authenticationStateManager { get; set; } = null!;
+    [Inject]
+    IQRCoderService qRCoderService { get; set; } = null!;
+    private bool _visible;
+    private string qrImageBase64 = "data:image/gif;base64,";
+    List<AppDto>? apps;
+    Dictionary<Guid, AppVersionDto?> lastAppVersions = new Dictionary<Guid, AppVersionDto?>();
+    AppVersionDto? currentAppVersion = null;
+    protected override async Task OnInitializedAsync()
+    {
+
+        apps = await appService.GetAllUsable();
+        if (apps != null)
+        {
+            foreach (var app in apps)
+            {
+                AppVersionDto? appVersion = await appVersionService.FindLastVersion(app.PackageName, appClientInfo.Environment);
+                lastAppVersions.Add(app.Id, appVersion);
+            }
+        }
+
+        await base.OnInitializedAsync();
+    }
+    private async Task ShowQr(AppVersionDto appVersion)
+    {
+        currentAppVersion = appVersion;
+        await SetQrImage();
+        _visible = true;
+    }
+    private async Task<string> GetDownloadUrl(AppVersionDto appVersion)
+    {
+        //检测token
+        await authenticationStateManager.TestToken("weighbridge_home_download");
+        var token = authenticationStateManager.GetCurrentToken();
+        if (token == null)
+        {
+            return string.Empty;
+        }
+        ApiSettings api = apiSettings.Value;
+
+        string url = $"{api.BaseAddres}app-manager/app-version/download-last-version/{appVersion.App?.PackageName}/{appClientInfo.Environment}?access_token={token.AccessToken}&_time ={DateTime.Now.ToString("yyyyMMddHHmmss")}";
+        if(appVersion.AppLocalUrl.EndsWith(".apk"))
+        {
+            url = appVersion.AppLocalUrl + $"?_time ={DateTime.Now.ToString("yyyyMMddHHmmss")}";
+        }
+        return url;
+    }
+    private async Task Download(AppVersionDto appVersion)
+    {
+        string url = await GetDownloadUrl(appVersion);
+        await jsTool.Document.DownloadFile(url);
+
+    }
+
+    private async Task SetQrImage()
+    {
+        if (currentAppVersion == null)
+        {
+            return;
+        }
+        string url = await GetDownloadUrl(currentAppVersion);
+        var image = await qRCoderService.CreateQrCodeBase64(new QRCodeEncodeInput()
+            {
+                Contents = url,
+                Width = 400,
+                Height = 400,
+                QRCodeType = QRCodeType.QrCode
+
+            });
+        if (image != null)
+        {
+            qrImageBase64 = "data:image/gif;base64," + image;
+        }
+    }
+
+}

@@ -1,0 +1,30 @@
+﻿@inject NavigationManager Navigation
+
+@code {
+    /// <summary>
+    /// 权限相关配置
+    /// </summary>
+    [Inject]
+    private IOptions<AuthSettings> AuthSettingsOpt { get; set; } = null!;
+
+    /// <summary>
+    /// 初始化
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        AuthSettings authSettings = AuthSettingsOpt.Value;
+        string returnUrl = "";
+        var uri = new Uri(Navigation.Uri);
+        var query = uri.Query;
+        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(query).TryGetValue("returnUrl", out var value))
+        {
+            returnUrl = value.ToString();
+        }
+        else if(!uri.AbsolutePath.Equals(authSettings.LoginPagePath))
+        {
+            returnUrl = uri.AbsolutePath + uri.Query;
+        }
+        returnUrl = Uri.EscapeDataString(returnUrl);
+        Navigation.NavigateTo($"{authSettings.LoginPagePath}{(string.IsNullOrEmpty(returnUrl) ? "" : "?returnUrl=" + returnUrl)}");
+    }
+}

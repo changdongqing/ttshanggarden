@@ -1,0 +1,12 @@
+﻿@using BlazorMonaco;
+@using BlazorMonaco.Editor
+@using Microsoft.AspNetCore.Components.Web
+@inherits FeedbackComponent<ShowCodeOptions, bool>
+<style>
+    .my-editor-class {
+        height: 85Vh
+    }
+</style>
+<Spin Spinning="_loading">
+    <StandaloneCodeEditor @ref="_editor" Id="any-id-string" ConstructionOptions="EditorConstructionOptions" CssClass="my-editor-class" OnDidInit="EditorOnDidInit" />
+</Spin>

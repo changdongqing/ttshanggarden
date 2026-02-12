@@ -1,0 +1,44 @@
+﻿@using Gardener.Core.EventBus
+@inherits OperationDialogBase<DeviceDto,bool,IotLocalResource>
+<Row>
+    <Col Span="14">
+    <Divider>@Localizer[nameof(SharedLocalResource.Receive)]</Divider>
+    <TextArea  @bind-Value="@content" Style="height:75Vh;overflow-y:scroll;background-color:black;color:white;" Id="content_textarea"></TextArea>
+    <Checkbox @bind-Value="isHex">@Localizer[nameof(IotLocalResource.IsHex)]</Checkbox>
+    </Col>
+    <Col Span="9" Offset="1">
+    <Divider>@Localizer[nameof(SharedLocalResource.Send)]</Divider>
+    @if (sendDataInput != null)
+    {
+        <Form Loading="@_dialogLoading.Value"
+              Model="sendDataInput"
+              LabelCol="new ColLayoutParam { Span = 0 }"
+              WrapperCol="new ColLayoutParam { Span = 24 }"
+              OnFinish="OnFormFinish"
+              ValidateMode="FormValidateMode.Complex"
+              Context="model">
+            <FormItem>
+                <TextArea @bind-Value="model.Content" Style="height:65Vh;"></TextArea>
+            </FormItem>
+            <FormItem>
+                <Select TItem="DeviceDataContentType"
+                        TItemValue="string"
+                        ItemValue="x=>x.ContentType"
+                        ItemLabel="x=>x.ContentType"
+                        DataSource="DeviceDataContentType.Types"
+                        @bind-Value="model.ContentType"
+                        AllowClear>
+                </Select>
+            </FormItem>
+            <FormItem NoStyle>
+                <Checkbox @bind-Value="model.IsHex" ></Checkbox>
+            </FormItem>
+            <FormItem WrapperColOffset="8" WrapperColSpan="16">
+                <Button Type="@ButtonType.Primary" HtmlType="submit">
+                    @Localizer[nameof(SharedLocalResource.Send)]
+                </Button>
+            </FormItem>
+        </Form>
+    }
+    </Col>
+</Row>

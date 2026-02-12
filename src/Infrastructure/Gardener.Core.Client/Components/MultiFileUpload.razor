@@ -1,0 +1,55 @@
+﻿@inherits OperationDialogBase<MultiFileUploadParams, MultiFileUploadResult>
+@if (UploadParams != null)
+{
+    <Upload @ref=upload
+            Action="@uploadUrl"
+            Name="file"
+            ShowUploadList=UploadParams.ShowUploadList
+            ShowDownloadIcon=UploadParams.ShowDownloadBtn
+            ShowPreviewIcon=UploadParams.ShowPreviewBtn
+            ShowRemoveIcon=UploadParams.ShowRemoveBtn
+            DefaultFileList="Convert(FileList)"
+            FileListChanged="OnFileListChanged"
+            ShowButton="((FileList.Count < UploadParams.MaxFileNumber) || UploadParams.MaxFileNumber <= 0) && UploadParams.ShowUploadBtn"
+            ListType="@UploadParams.UploadListType.Type"
+            OnPreview="(file)=> {
+                                imagesPreviewBindValue.SetAllValue(false);
+                                imagesPreviewBindValue[Convert(file).Id] = true;
+                    }
+                    "
+        OnChange="HandleChange"
+        OnRemove="OnRemove"
+        BeforeUpload="BeforeUpload"
+        BeforeAllUploadAsync="BeforeAllUploadAsync"
+        OnSingleCompleted="OnSingleCompleted"
+        OnCompleted="OnCompleted"
+        Multiple="UploadParams.Multiple"
+        Headers="headers"
+        Data="UploadParams.UploadData">
+    @if (UploadParams.UploadBtnStyle.Equals(UploadBtnStyle.Button))
+    {
+        <Button Icon="upload" Loading="loading">
+            <span>@localizer[nameof(SharedLocalResource.Upload)]</span>
+        </Button>
+    }
+    else if (UploadParams.UploadBtnStyle.Equals(UploadBtnStyle.BlockText))
+    {
+        <div>
+            <Icon Spin="loading" Type="@(loading ? "Loading" : "plus")"></Icon>
+            <div className="ant-upload-text">@localizer[nameof(SharedLocalResource.Upload)]</div>
+        </div>
+    }
+</Upload>
+<div style="display:none;">
+    <ImagePreviewGroup>
+        @foreach (var item in FileList)
+        {
+            <Image Width="200"
+                   Style="display:none;"
+                   Src="@item.Url"
+                   PreviewSrc="@item.Url"
+                   @bind-PreviewVisible="imagesPreviewBindValue[item.Id]" Alt="@item.OriginalName" />
+        }
+    </ImagePreviewGroup>
+</div>
+}

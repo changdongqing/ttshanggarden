@@ -1,0 +1,9 @@
+﻿<Tag Color="@(Yes?"blue":"red")">
+    @(Yes ? localizer[nameof(SharedLocalResource.Yes)] : localizer[nameof(SharedLocalResource.No)])
+</Tag>
+@code {
+    [Inject]
+    protected ILocalizationLocalizer localizer { get; set; } = null!;
+    [Parameter]
+    public bool Yes { get; set; }
+}

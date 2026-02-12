@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "run_api_client",
+    "Projects": [
+      {
+        "Name": "Application\\Gardener.Api.Entry\\Gardener.Api.Entry.csproj",
+        "Action": "Start",
+        "DebugTarget": ""
+      },
+      {
+        "Name": "Application\\Gardener.Client.Entry\\Gardener.Client.Entry.csproj",
+        "Action": "Start",
+        "DebugTarget": ""
+      }
+    ]
+  }
+]

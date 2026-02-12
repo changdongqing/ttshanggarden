@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link rel="stylesheet" href="Gardener.Client.Auto.Entry.styles.css" />
+    <HeadOutlet @rendermode="InteractiveAuto" />
+</head>
+
+<body>
+    <app id="app">
+        <Gardener.Client.Entry.App @rendermode="InteractiveAuto" />
+    </app>
+    <script src="_framework/blazor.web.js"></script>
+    <script type="text/javascript">
+        function downloadJSAtOnload() {
+            var jsList = ["./_content/BlazorMonaco/jsInterop.js?v=0.34.1", "./_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js?v=0.34.1", "./_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js?v=0.34.1"];
+            for (var i = 0; i < jsList.length; i++) {
+                var element = document.createElement("script");
+                element.src = jsList[i];
+                document.body.appendChild(element);
+            }
+        }
+        if (window.addEventListener)
+            window.addEventListener("load", downloadJSAtOnload, false);
+        else if (window.attachEvent)
+            window.attachEvent("onload", downloadJSAtOnload);
+        else
+            window.onload = downloadJSAtOnload;
+    </script>
+</body>
+
+</html>

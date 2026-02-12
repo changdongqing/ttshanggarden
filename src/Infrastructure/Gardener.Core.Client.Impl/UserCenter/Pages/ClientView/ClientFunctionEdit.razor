@@ -1,0 +1,80 @@
+﻿@inherits OperationDialogBase<ClientFunctionEditOption, bool,UserCenterResource>
+@{
+
+    TableFilter<ApiHttpMethod>[] apiHttpMethodFilters = EnumHelper.EnumToList<ApiHttpMethod>().Select(x => { return new TableFilter<ApiHttpMethod>() { Text = Localizer[EnumHelper.GetEnumDescriptionOrName(x)], Value = x }; }).ToArray();
+}
+<Row Style="margin-top:10px;">
+    <AntDesign.Col>
+        <Table DataSource="@_functionDtos"
+               TItem="FunctionDto"
+               PageSize="_functionDtos.Count()"
+               Loading="@_loading"
+               Context="model"
+               Size=@TableSize.Small
+               ScrollY="75Vh"
+               Style="min-height:75Vh"
+               HidePagination="true"
+               Bordered="true"
+               SelectedRowsChanged="SelectedRowsChanged"
+               PaginationPosition="@ClientConstant.TablePaginationPosition"
+               EnableVirtualization>
+            <TitleTemplate>
+                @if (this.Options.Type == 0)
+                {
+                    <Row>
+                        <AntDesign.Col Span="8">
+                            <ResourceAuthorize ResourceKey="system_manager_client_function_delete_selected">
+                                <Button Type="@ButtonType.Primary" Icon="delete" Danger OnClick="OnFunctionDeletesClick">
+                                    @Localizer[nameof(SharedLocalResource.DeleteSelected)]
+                                </Button>
+                            </ResourceAuthorize>
+                        </AntDesign.Col>
+                        <AntDesign.Col Span="16" Style="text-align:right">
+                            <Space>
+                                <ResourceAuthorize ResourceKey="system_manager_client_function_add_page_show">
+                                    <SpaceItem>
+                                        <Button Type="@ButtonType.Primary" Icon="plus" OnClick="x => OnShowFunctionAddPageClick(this.Options.Id)">
+                                            @Localizer[nameof(SharedLocalResource.Select)]
+                                        </Button>
+                                    </SpaceItem>
+                                </ResourceAuthorize>
+                            </Space>
+                        </AntDesign.Col>
+                    </Row>
+                }
+                else if (this.Options.Type == 1)
+                {
+                    <Row>
+                        <AntDesign.Col Span="24">
+                            <Space>
+                                <ResourceAuthorize ResourceKey="system_manager_client_function_binding">
+                                    <SpaceItem>
+                                        <Button Type="@ButtonType.Primary" Icon="check" OnClick="x => OnFunctionAddClick()">
+                                            @Localizer["Binding"]
+                                        </Button>
+                                    </SpaceItem>
+                                </ResourceAuthorize>
+                            </Space>
+                        </AntDesign.Col>
+                    </Row>
+                }
+            </TitleTemplate>
+            <ColumnDefinitions>
+                <ResourceAuthorize ResourceKey="system_manager_client_function_delete_selected">
+                    <Selection Key="@(model.Path+"_"+model.Method)" Width="50" />
+                </ResourceAuthorize>
+                <Column TData="string" @bind-Field="@model.Group" Width="150" Sortable="false" Filterable OnFilter="((value,name)=>name.Equals(value))" />
+                <Column TData="string" @bind-Field="@model.Key" Width="150" Sortable="false" Filterable OnFilter="((value,name)=>name.Equals(value))" />
+                <Column @bind-Field="@model.Summary" Width="150" Sortable="false" />
+                <Column @bind-Field="@model.Description" Width="200" Sortable="false" />
+                <Column @bind-Field="@model.Path" Width="150" Sortable="false" />
+                <Column @bind-Field="@model.Method" Width="100" Sortable="false" Filters="apiHttpMethodFilters">
+                    <TagPro Text="@EnumHelper.GetEnumDescription(model.Method)"></TagPro>
+                </Column>
+                <Column @bind-Field="@model.EnableAudit" Width="100" Sortable="false" Filterable>
+                    <TagYesNo Yes="@model.EnableAudit"></TagYesNo>
+                </Column>
+            </ColumnDefinitions>
+        </Table>
+    </AntDesign.Col>
+</Row>

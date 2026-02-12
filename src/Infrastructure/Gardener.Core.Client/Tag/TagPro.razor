@@ -1,0 +1,28 @@
+﻿@inherits AntDomComponentBase
+@if (!string.IsNullOrEmpty(this._icon) || this.ChildContent != null || !string.IsNullOrEmpty(this.value))
+{
+    <Tag Color="@this._color"
+         Checkable="this.Checkable"
+         Checked="this.Checked"
+         CheckedChanged="this.CheckedChanged"
+         OnClick="this.OnClick"
+         OnClose="this.OnClose"
+         OnClosing="this.OnClosing"
+         Visible="this.Visible"
+         Closable="this.Closable"
+         Class="@this.Class"
+         Style="@this.Style">
+        @if (!string.IsNullOrEmpty(this._icon))
+        {
+            <Icon Type="@this._icon" Theme="@(string.IsNullOrEmpty(this._iconTheme)?IconThemeType.Outline:this._iconTheme)" Spin="@(this._iconSpin ?? false)" />
+        }
+        @if (this.ChildContent != null)
+        {
+            @this.ChildContent
+        }
+        else if (!string.IsNullOrEmpty(this.value))
+        {
+            @this.value
+        }
+    </Tag>
+}

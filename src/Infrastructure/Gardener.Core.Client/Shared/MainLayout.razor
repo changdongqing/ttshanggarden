@@ -1,0 +1,40 @@
+﻿@using AntDesign.ProLayout
+@using Gardener.Core.Client.Components
+@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
+<AuthorizeView>
+    <Authorized>
+        <AntDesign.ProLayout.BasicLayout Logo="@("./assets/logo.png")" MenuData="_menuData">
+            <RightContentRender>
+                <RightContent />
+            </RightContentRender>
+            <ChildContent>
+                <Microsoft.AspNetCore.Components.Sections.SectionOutlet SectionName="@SectionNames.BodyTop" />
+                @if (ClientConstant.EnabledTabs)
+                {
+                    <ReuseTabs Class="top-row px-4" TabPaneClass="content px-4" Draggable/>
+
+                }else
+                {
+                    @Body
+                }
+                <Microsoft.AspNetCore.Components.Sections.SectionOutlet SectionName="@SectionNames.BodyBottom" />
+            </ChildContent>
+            <FooterRender>
+                @if (ClientConstant.EnableFooterView)
+                {
+                   <FooterView Copyright="@systemConfig?.Copyright" Links="ClientConstant.FooterLinks"></FooterView>
+                }
+            </FooterRender>
+        </AntDesign.ProLayout.BasicLayout>
+        <AntContainer />
+    </Authorized>
+    <NotAuthorized>
+        @*Just render the body so that RedirectToLogin works*@
+        @Body
+    </NotAuthorized>
+</AuthorizeView>
+@if (ClientConstant.EnableSettingDrawer)
+{
+    <SettingDrawer />
+}

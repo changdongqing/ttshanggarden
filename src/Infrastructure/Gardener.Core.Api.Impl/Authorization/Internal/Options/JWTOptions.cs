@@ -1,0 +1,21 @@
+﻿// -----------------------------------------------------------------------------
+// 园丁,是个很简单的管理系统
+//  gitee:https://gitee.com/hgflydream/Gardener 
+//  issues:https://gitee.com/hgflydream/Gardener/issues 
+// -----------------------------------------------------------------------------
+
+using Furion.ConfigurableOptions;
+
+namespace Gardener.Core.Api.Impl.Authorization.Internal.Options
+{
+    /// <summary>
+    /// JWT 配置信息
+    /// </summary>
+    public class JWTOptions : IConfigurableOptions
+    {
+        /// <summary>
+        /// 设置字典
+        /// </summary>
+        public Dictionary<IdentityType, JWTSettingsOptions> Settings { get; set; } = new Dictionary<IdentityType, JWTSettingsOptions>();
+    }
+}

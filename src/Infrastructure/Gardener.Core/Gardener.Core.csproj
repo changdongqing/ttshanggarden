@@ -1,0 +1,123 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Gardener.Core.Shared\Gardener.Core.Shared.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="DistributedLock.Core" Version="1.0.7" />
+		<PackageReference Include="Mapster" Version="7.4.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="8.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="6.0.0-preview.4.21253.5" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Update="AppManager\Resources\AppManagerResource.Designer.cs">
+		  <DesignTime>True</DesignTime>
+		  <AutoGen>True</AutoGen>
+		  <DependentUpon>AppManagerResource.resx</DependentUpon>
+		</Compile>
+		<Compile Update="Attachment\Resources\AttachmentLocalResource.Designer.cs">
+			<DependentUpon>AttachmentLocalResource.resx</DependentUpon>
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+		</Compile>
+		<Compile Update="Audit\Resources\AuditLocalResource.Designer.cs">
+			<DependentUpon>AuditLocalResource.resx</DependentUpon>
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+		</Compile>
+		<Compile Update="Authorization\Resources\AuthorizationLocalResource.Designer.cs">
+			<DependentUpon>AuthorizationLocalResource.resx</DependentUpon>
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+		</Compile>
+		<Compile Update="Dict\Resources\DictResource.Designer.cs">
+		  <DependentUpon>DictResource.resx</DependentUpon>
+		  <DesignTime>True</DesignTime>
+		  <AutoGen>True</AutoGen>
+		</Compile>
+		<Compile Update="Email\Resources\EmailLocalResource.Designer.cs">
+			<DependentUpon>EmailLocalResource.resx</DependentUpon>
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+		</Compile>
+		<Compile Update="Printer\Resources\PrinterLocalResource.Designer.cs">
+		  <DesignTime>True</DesignTime>
+		  <AutoGen>True</AutoGen>
+		  <DependentUpon>PrinterLocalResource.resx</DependentUpon>
+		</Compile>
+		<Compile Update="SystemAsset\Resources\SystemAssetResource.Designer.cs">
+		  <DesignTime>True</DesignTime>
+		  <AutoGen>True</AutoGen>
+		  <DependentUpon>SystemAssetResource.resx</DependentUpon>
+		</Compile>
+		<Compile Update="SystemConfig\Resources\SystemConfigResource.Designer.cs">
+		  <DependentUpon>SystemConfigResource.resx</DependentUpon>
+		  <DesignTime>True</DesignTime>
+		  <AutoGen>True</AutoGen>
+		</Compile>
+		<Compile Update="SystemManager\Resources\SystemAssetResource.Designer.cs">
+			<DependentUpon>SystemAssetResource.resx</DependentUpon>
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+		</Compile>
+		<Compile Update="UserCenter\Resources\UserCenterResource.Designer.cs">
+		  <DependentUpon>UserCenterResource.resx</DependentUpon>
+		  <DesignTime>True</DesignTime>
+		  <AutoGen>True</AutoGen>
+		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Update="AppManager\Resources\AppManagerResource.resx">
+		  <Generator>PublicResXFileCodeGenerator</Generator>
+		  <LastGenOutput>AppManagerResource.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Attachment\Resources\AttachmentLocalResource.resx">
+			<LastGenOutput>AttachmentLocalResource.Designer.cs</LastGenOutput>
+			<Generator>PublicResXFileCodeGenerator</Generator>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Audit\Resources\AuditLocalResource.resx">
+			<LastGenOutput>AuditLocalResource.Designer.cs</LastGenOutput>
+			<Generator>PublicResXFileCodeGenerator</Generator>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Authorization\Resources\AuthorizationLocalResource.resx">
+			<LastGenOutput>AuthorizationLocalResource.Designer.cs</LastGenOutput>
+			<Generator>PublicResXFileCodeGenerator</Generator>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Dict\Resources\DictResource.resx">
+		  <LastGenOutput>DictResource.Designer.cs</LastGenOutput>
+		  <Generator>PublicResXFileCodeGenerator</Generator>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Email\Resources\EmailLocalResource.resx">
+			<LastGenOutput>EmailLocalResource.Designer.cs</LastGenOutput>
+			<Generator>PublicResXFileCodeGenerator</Generator>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Printer\Resources\PrinterLocalResource.resx">
+		  <Generator>PublicResXFileCodeGenerator</Generator>
+		  <LastGenOutput>PrinterLocalResource.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<EmbeddedResource Update="SystemAsset\Resources\SystemAssetResource.resx">
+		  <Generator>PublicResXFileCodeGenerator</Generator>
+		  <LastGenOutput>SystemAssetResource.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<EmbeddedResource Update="SystemConfig\Resources\SystemConfigResource.resx">
+		  <LastGenOutput>SystemConfigResource.Designer.cs</LastGenOutput>
+		  <Generator>PublicResXFileCodeGenerator</Generator>
+		</EmbeddedResource>
+		<EmbeddedResource Update="SystemManager\Resources\SystemAssetResource.resx">
+			<LastGenOutput>SystemAssetResource.Designer.cs</LastGenOutput>
+			<Generator>PublicResXFileCodeGenerator</Generator>
+		</EmbeddedResource>
+		<EmbeddedResource Update="UserCenter\Resources\UserCenterResource.resx">
+		  <LastGenOutput>UserCenterResource.Designer.cs</LastGenOutput>
+		  <Generator>PublicResXFileCodeGenerator</Generator>
+		</EmbeddedResource>
+	</ItemGroup>
+</Project>

@@ -1,0 +1,119 @@
+﻿@*page:AppVersion.razor*@
+@*gardener-time:2024-07-16 17:47:30*@
+@page "/app-manager/app-version"
+@inherits ListOperateTableBase<AppVersionDto, Int64, AppVersionEdit,AppManagerResource>
+
+@{
+    TableFilter<IdentityType>[] identityTypeEnumFilters = EnumHelper.EnumToList<IdentityType>().Select(x => { return new TableFilter<IdentityType>() { Text = Localizer[EnumHelper.GetEnumDescriptionOrName(x)], Value = x }; }).ToArray();
+}
+<div>
+    <Table @ref="_table"
+           TItem="AppVersionDto"
+           DataSource="_datas"
+           Total="_total"
+           OnChange="OnChange"
+           @bind-PageSize="_pageSize"
+           @bind-SelectedRows="_selectedRows"
+           Loading="_tableLoading.Value"
+           Context="model"
+           Size="ClientConstant.DefaultTableSize"
+           PaginationPosition="@ClientConstant.TablePaginationPosition"
+           RemoteDataSource
+           RowKey="x => x.Id">
+        <TitleTemplate>
+            <ResourceAuthorize ResourceKey="app_manager_app_version_search">
+                <TableSearch TDto="AppVersionDto" @ref="this._tableSearch" OnSearch="OnTableSearch" Settings="_tableSearchSettings" CustomLocalizer="Localizer" />
+            </ResourceAuthorize>
+            <Row>
+                <AntDesign.Col Span="8">
+                    <ResourceAuthorize ResourceKey="app_manager_app_version_selected">
+                        <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Delete" Danger OnClick="OnClickDeletes" Loading="_deletesBtnLoading">
+                            @Localizer[nameof(SharedLocalResource.DeleteSelected)]
+                        </Button>
+                    </ResourceAuthorize>
+                </AntDesign.Col>
+                <AntDesign.Col Span="16" Style="text-align:right">
+                    <Space>
+                        <ResourceAuthorize ResourceKey="app_manager_app_version_add">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Plus" OnClick="OnClickAdd">
+                                    @Localizer[nameof(SharedLocalResource.Add)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                        <ResourceAuthorize ResourceKey="app_manager_app_version_refresh">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Reload" OnClick="ReLoadTable">
+                                    @Localizer[nameof(SharedLocalResource.Refresh)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                    </Space>
+                </AntDesign.Col>
+            </Row>
+        </TitleTemplate>
+        <ColumnDefinitions>
+            <Selection Hidden="@_userUnauthorizedResources["app_manager_app_version_selected"]" />
+
+            <PropertyColumn Property="x => x.Id" Filterable Sortable />
+            <PropertyColumn Property="x => x.AppId" Filterable Sortable >
+            <GuidView Value="@model.AppId"></GuidView>
+            </PropertyColumn>
+            <PropertyColumn Property="x => x.App" >
+                @(model.App?.AppName ?? "--")
+            </PropertyColumn>
+            <PropertyColumn Property="x => x.Environment" Filterable Sortable>
+                <TagPro Text="model.Environment" Localizer="Localizer"></TagPro>
+            </PropertyColumn>
+            <PropertyColumn Property="x => x.VersionNumber" Filterable Sortable />
+            <PropertyColumn Property="x => x.VersionName" Filterable Sortable />
+            <PropertyColumn Property="x => x.VersionDescription" Filterable Sortable Style="max-width:200px;max-height:100px;overflow-y:scroll;display: inline-block;" />
+            <PropertyColumn Property="x => x.AppUrl">
+                <a href="@model.AppUrl" title="@model.AppUrl" target="_blank">@Localizer[nameof(SharedLocalResource.Download)]</a>
+            </PropertyColumn>
+            <PropertyColumn Property="x => x.AppLocalUrl">
+                <a href="@model.AppLocalUrl" title="@model.AppLocalUrl" target="_blank">@Localizer[nameof(SharedLocalResource.Download)]</a>
+            </PropertyColumn>
+            <PropertyColumn Property="x => x.FileName" Filterable Sortable />
+            <PropertyColumn Property="x => x.ForcedUpdating" Filterable Sortable>
+                <TagYesNo Yes="model.ForcedUpdating"></TagYesNo>
+            </PropertyColumn>
+            <PropertyColumn Property="x => x.IsLocked" Filterable Sortable>
+                <ResourceAuthorize ResourceKey="app_manager_app_version_lock">
+                    <Authorized>
+                        <Switch @bind-Value="@model.IsLocked" OnChange="e => OnChangeIsLocked(model, e)" Loading="_lockBtnLoading[model]"></Switch>
+                    </Authorized>
+                    <NotAuthorized>
+                        <TagYesNo Yes="model.IsLocked"></TagYesNo>
+                    </NotAuthorized>
+                </ResourceAuthorize>
+            </PropertyColumn>
+            <PropertyColumn Property="x => x.CreatedTime" Sortable DefaultSortOrder="@SortDirection.Descending" Format="@ClientConstant.DateTimeFormat" />
+            <ActionColumn>
+                <Space>
+                    <ResourceAuthorize ResourceKey="app_manager_app_version_edit">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Edit)]" ArrowPointAtCenter="true">
+                                <Button Icon="@IconType.Outline.Edit" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="() => OnClickEdit(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="app_manager_app_version_detail">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Detail)]" ArrowPointAtCenter="true">
+                                <Button Icon="@IconType.Outline.Eye" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="() => OnClickDetail(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="app_manager_app_version_delete">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Delete)]" ArrowPointAtCenter="true">
+                                <Button Icon="@IconType.Outline.Delete" Type="@ButtonType.Primary" Danger OnClick="() => OnClickDelete(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                </Space>
+            </ActionColumn>
+        </ColumnDefinitions>
+    </Table>
+</div>

@@ -1,0 +1,89 @@
+﻿@inherits EditOperationDialogBase<DeptDto, int,UserCenterResource>
+@if (_editModel != null)
+{
+    <Form Loading="@_dialogLoading.Value"
+          Model="_editModel"
+          LabelCol="new ColLayoutParam { Span = 4 }"
+          WrapperCol="new ColLayoutParam { Span = 20 }"
+          OnFinish="OnFormFinish"
+          Context="model">
+        <ResourceAuthorize ResourceKey="@CommonResourceKeys.SystemTenantAdministratorKey">
+            <FormItem Label="@Localizer[nameof(SharedLocalResource.Tenant)]">
+                <Select DataSource="@_tenants"
+                        @bind-Value="@model.TenantId"
+                        ValueName="@nameof(SystemTenantDto.Id)"
+                        LabelName="@nameof(SystemTenantDto.Name)"
+                        TItem="SystemTenantDto"
+                        TItemValue="Guid?"
+                        AllowClear>
+                </Select>
+            </FormItem>
+        </ResourceAuthorize>
+        <FormItem Label="@Localizer[nameof(SharedLocalResource.Parent)]">
+            <Input @bind-Value="@model.ParentId" Type="hidden" />
+            @if (deptDatas != null && deptDatas.Any())
+            {
+                <TreeSelect TItemValue="string"
+                            TItem="DeptDto"
+                            Style="width:100%;"
+                            DataSource="deptDatas"
+                            @bind-Value="@ParentDeptId"
+                            Placeholder="@Localizer[nameof(SharedLocalResource.PleaseSelect)]"
+                            AllowClear="true"
+                            TitleExpression="node => node.DataItem.Name"
+                            KeyExpression="node =>node.DataItem.Id.ToString()"
+                            ChildrenExpression="node => node.DataItem.Children?.ToList()"
+                            IsLeafExpression="node => node.DataItem.Children==null || !node.DataItem.Children.Any()"
+                            TreeDefaultExpandAll
+                            DisabledExpression="node=>node.DataItem.Id.Equals(_editModel.Id)"
+                            Disabled="this.Options.Data!=0 && !OperationDialogInputType.Edit.Equals(this.Options.Type)">
+                </TreeSelect>
+            }
+        </FormItem>
+        <FormItem>
+            <Input @bind-Value="@model.Name" />
+        </FormItem>
+        <FormItem>
+            <Input @bind-Value="@model.Contacts" />
+        </FormItem>
+        <FormItem>
+            <Input @bind-Value="@model.Tel" />
+        </FormItem>
+        <FormItem>
+            <AntDesign.InputNumber @bind-Value="@model.Order" />
+        </FormItem>
+        <FormItem>
+            <TextArea AutoSize="true" MinRows="2" MaxRows="6" @bind-Value="@model.Remark"></TextArea>
+        </FormItem>
+        <FormItem>
+            <Switch @bind-Value="@model.IsLocked"></Switch>
+        </FormItem>
+
+        @if (this.Options.Type.Equals(OperationDialogInputType.Edit) || this.Options.Type.Equals(OperationDialogInputType.Select))
+        {
+            <FormItem Label="@Localizer[nameof(SharedLocalResource.CreatedTime)]">
+                <span>@model.CreatedTime.ToString(ClientConstant.DateTimeFormat)</span>
+            </FormItem>
+            <FormItem Label="@Localizer[nameof(SharedLocalResource.UpdatedTime)]">
+                <span>@model.UpdatedTime?.ToString(ClientConstant.DateTimeFormat)</span>
+            </FormItem>
+        }
+        <FormItem WrapperColOffset="4" WrapperColSpan="24">
+            <Space>
+                @if (!OperationDialogInputType.Select.Equals(this.Options.Type))
+                {
+                    <SpaceItem>
+                        <Button Type="@ButtonType.Primary" HtmlType="submit">
+                            @Localizer[nameof(SharedLocalResource.Save)]
+                        </Button>
+                    </SpaceItem>
+                }
+                <SpaceItem>
+                    <Button OnClick="_=>OnFormCancel()">
+                        @Localizer[nameof(SharedLocalResource.Cancel)]
+                    </Button>
+                </SpaceItem>
+            </Space>
+        </FormItem>
+    </Form>
+}

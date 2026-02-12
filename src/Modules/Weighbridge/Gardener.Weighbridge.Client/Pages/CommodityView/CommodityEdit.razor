@@ -1,0 +1,86 @@
+﻿@*page:CommodityEdit.razor*@
+@*gardener-time:2024-09-09 16:48:29*@
+@inherits EditOperationDialogBase<CommodityDto, Int32,WeighbridgeLocalResource>
+
+<Form @ref="_editForm"
+      Loading="_dialogLoading.Value"
+      Model="_editModel"
+      LabelCol="new ColLayoutParam { Span = 6 }"
+      WrapperCol="new ColLayoutParam { Span = 18 }"
+      OnFinish="OnFormFinish"
+      ValidateMode="FormValidateMode.Complex"
+      Context="model">
+
+            @if (base.OperationIs(OperationDialogInputType.Edit | OperationDialogInputType.Select))
+            {
+                                <FormItem >
+                <Input @bind-Value="model.Id" Disabled="true" />
+                </FormItem>
+
+            }
+                    <ResourceAuthorize ResourceKey="@CommonResourceKeys.SystemTenantAdministratorKey">
+            <FormItem Label="@Localizer[nameof(SharedLocalResource.Tenant)]">
+                <Select DataSource="_tenants"
+                        @bind-Value="model.TenantId"
+                        ValueName="@nameof(SystemTenantDto.Id)"
+                        LabelName="@nameof(SystemTenantDto.Name)"
+                        TItem="SystemTenantDto"
+                        TItemValue="Guid?"
+                        AllowClear
+                        Disabled="base.operationIsOnlyReadData" >
+                </Select>
+            </FormItem>
+        </ResourceAuthorize>
+            <FormItem Rules="[_uniqueValueValidatorRule]">
+                <Input @bind-Value="model.CommodityName" Disabled="base.operationIsOnlyReadData" />
+            </FormItem>
+            <FormItem Rules="[_uniqueValueValidatorRule]">
+                <Input @bind-Value="model.CommodityCode" Disabled="base.operationIsOnlyReadData" />
+            </FormItem>
+            <FormItem >
+                <TextArea @bind-Value="model.CommodityDescription" Disabled="base.operationIsOnlyReadData" MinRows="2" />
+            </FormItem>
+            <FormItem >
+                <ResourceAuthorize ResourceKey="weighbridge_commodity_lock">
+                    <Authorized>
+                        <Switch @bind-Value="@model.IsLocked" Disabled="base.operationIsOnlyReadData"></Switch>
+                    </Authorized>
+                    <NotAuthorized>
+                        <Switch @bind-Value="@model.IsLocked" Disabled="true"></Switch>
+                    </NotAuthorized>
+                </ResourceAuthorize>
+            </FormItem>
+
+            @if (this.Options.Type.Equals(OperationDialogInputType.Edit) || this.Options.Type.Equals(OperationDialogInputType.Select))
+            {
+                <FormItem Label="@Localizer[nameof(SharedLocalResource.CreatedTime)]" >
+                    <span>@model.CreatedTime.ToString(ClientConstant.DateTimeFormat)</span>
+                </FormItem>
+
+            }
+            
+            @if (this.Options.Type.Equals(OperationDialogInputType.Edit) || this.Options.Type.Equals(OperationDialogInputType.Select))
+            {
+                <FormItem Label="@Localizer[nameof(SharedLocalResource.UpdatedTime)]" >
+                    <span>@model.UpdatedTime?.ToString(ClientConstant.DateTimeFormat)</span>
+                </FormItem>
+
+            }
+                <FormItem WrapperColOffset="8" WrapperColSpan="16">
+        <Space>
+            @if (!OperationDialogInputType.Select.Equals(this.Options.Type))
+            {
+                <SpaceItem>
+                    <Button Type="@ButtonType.Primary" OnClick="OnGoToSubmit">
+                        @Localizer[nameof(SharedLocalResource.Save)]
+                    </Button>
+                </SpaceItem>
+            }
+            <SpaceItem>
+                <Button OnClick="_=>OnFormCancel()">
+                    @Localizer[nameof(SharedLocalResource.Cancel)]
+                </Button>
+            </SpaceItem>
+        </Space>
+    </FormItem>
+</Form>

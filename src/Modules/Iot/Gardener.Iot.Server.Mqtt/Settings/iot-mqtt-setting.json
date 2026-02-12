@@ -1,0 +1,9 @@
+{
+  "MqttServer": {
+    "Port": 28889,
+    "LoggerIsEnabled": true,
+    "SenderClientId": "system-sender",
+    "ClientSubscribeAllDataTopic": "gardener/iot/mqtt/subscribe/data/all",
+    "ClientSubscribeSelfDataTopicPrefix": "gardener/iot/mqtt/subscribe/data/"
+  }
+}

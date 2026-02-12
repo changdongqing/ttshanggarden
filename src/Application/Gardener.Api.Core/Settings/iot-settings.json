@@ -1,0 +1,6 @@
+{
+  "Iot": {
+    "AllowAnonymousDeviceConnect": false,
+    "UpdateLastPushDataTimeMinIntervalMilliseconds": 5000
+  }
+}

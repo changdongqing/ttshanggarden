@@ -1,0 +1,98 @@
+﻿@using System.ComponentModel.DataAnnotations
+@inject ILocalizationLocalizer<SharedLocalResource> Localizer
+<Dropdown Placement="Placement.Bottom" Style="@(Width == null ? "" : $"width:{Width};")">
+    <Overlay>
+        <Menu>
+            @foreach (int len in CodeLengthList)
+            {
+                <MenuItem>
+                    <Button Size="@ButtonSize.Small" Type="@ButtonType.Text" OnClick="() => OnClickGenerate(len)">@Localizer[nameof(SharedLocalResource.Length)] @len</Button>
+                </MenuItem>
+            }
+        </Menu>
+    </Overlay>
+    <ChildContent>
+        <Button OnClick="() => OnClickGenerate(CodeLengthList[0])">@Localizer[nameof(SharedLocalResource.Generate)]</Button>
+    </ChildContent>
+</Dropdown>
+@code {
+    /// <summary>
+    /// 生成的字符类型
+    /// </summary>
+    [Parameter]
+    public CodeCharacterTypeEnum CodeCharacterType { get; set; } = CodeCharacterTypeEnum.NumberAndCharacter;
+
+    /// <summary>
+    /// 生成字符长度列表
+    /// </summary>
+    /// <remarks>
+    /// 首位为默认长度
+    /// </remarks>
+    [Parameter]
+    public int[] CodeLengthList { get; set; } = [6, 8, 10, 12, 16, 18, 32];
+    /// <summary>
+    /// 绑定Value
+    /// </summary>
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+    /// <summary>
+    /// 绑定Value
+    /// </summary>
+    [Parameter]
+    [Required]
+    public required string Value { get; set; }
+
+    /// <summary>
+    /// 宽度
+    /// </summary>
+    [Parameter]
+    public string? Width { get; set; }
+
+    /// <summary>
+    /// 首字符必须是字母
+    /// </summary>
+    [Parameter]
+    public bool? FirstMustIsCharacter { get; set; }
+
+    /// <summary>
+    /// 转大写
+    /// </summary>
+    [Parameter]
+    public bool? ToUpper { get; set; }
+
+    /// <summary>
+    /// 转小写
+    /// </summary>
+    [Parameter]
+    public bool? ToLower { get; set; }
+    /// <summary>
+    /// 点击生成
+    /// </summary>
+    /// <param name="len"></param>
+    private void OnClickGenerate(int len)
+    {
+        string code = string.Empty;
+        if (FirstMustIsCharacter.HasValue && FirstMustIsCharacter.Value)
+        {
+            code = RandomCodeCreator.Create(CodeCharacterTypeEnum.Character, 1);
+            if (len > 1)
+            {
+                code += RandomCodeCreator.Create(CodeCharacterType, len - 1);
+            }
+        }
+        else
+        {
+            code = RandomCodeCreator.Create(CodeCharacterType, len);
+        }
+        if (ToUpper.HasValue && ToUpper.Value)
+        {
+            code = code.ToUpper();
+        }
+        if (ToLower.HasValue && ToLower.Value)
+        {
+            code = code.ToLower();
+        }
+        this.ValueChanged.InvokeAsync(code);
+    }
+
+}

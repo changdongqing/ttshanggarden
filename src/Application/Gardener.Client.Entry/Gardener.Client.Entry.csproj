@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
+		<!--<RunAOTCompilation>true</RunAOTCompilation>-->
+		<!--<BlazorEnableCompression>true</BlazorEnableCompression>-->
+	</PropertyGroup>
+
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.8" PrivateAssets="all" />
+		<PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.JSInterop" Version="8.0.8" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Infrastructure\Gardener.Core.Client.Impl\Gardener.Core.Client.Impl.csproj" />
+	  <ProjectReference Include="..\..\Modules\CodeGeneration\Gardener.Core.CodeGeneration.Client\Gardener.Core.CodeGeneration.Client.csproj" />
+	  <ProjectReference Include="..\..\Modules\EasyJob\Gardener.EasyJob.Client\Gardener.EasyJob.Client.csproj" />
+	  <ProjectReference Include="..\..\Modules\Iot\Gardener.Iot.Client\Gardener.Iot.Client.csproj" />
+	  <ProjectReference Include="..\..\Modules\ToolBox\Gardener.ToolBox.Client\Gardener.ToolBox.Client.csproj" />
+	  <ProjectReference Include="..\..\Modules\Weighbridge\Gardener.Weighbridge.Client\Gardener.Weighbridge.Client.csproj" />
+	  <ProjectReference Include="..\..\Modules\WoChat\Gardener.WoChat.Client\Gardener.WoChat.Client.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+	</ItemGroup>
+</Project>

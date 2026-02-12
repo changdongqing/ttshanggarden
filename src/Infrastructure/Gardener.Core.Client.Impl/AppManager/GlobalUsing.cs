@@ -1,0 +1,12 @@
+﻿global using AntDesign;
+global using Gardener.Core.DependencyInjection;
+global using Gardener.Core.Util;
+global using Gardener.Core.Enums;
+global using Gardener.Core.Resources;
+global using Gardener.Core.Client.Services;
+global using Gardener.Core.Client.OperationDialog;
+global using Gardener.Core.Client.Extensions;
+global using Gardener.Core.Client.Components.PageBaseClass;
+global using Gardener.Core.AppManager.Dtos;
+global using Gardener.Core.AppManager.Services;
+global using Gardener.Core.AppManager.Resources;

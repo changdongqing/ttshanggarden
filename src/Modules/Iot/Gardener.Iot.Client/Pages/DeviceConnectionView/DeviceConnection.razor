@@ -1,0 +1,146 @@
+﻿@inherits ListOperateTableBase<DeviceConnectionDto, long, DeviceConnectionEdit,IotLocalResource>
+@page "/iot/device_connection"
+
+<div>
+    <Table @ref="_table"
+    TItem="DeviceConnectionDto"
+    DataSource="@_datas"
+    Total="_total"
+    OnChange="@OnChange"
+    @bind-PageSize="_pageSize"
+    @bind-PageIndex="_pageIndex"
+    @bind-SelectedRows="_selectedRows"
+    Loading="@_tableLoading.Value"
+    Context="model"
+    Size="@ClientConstant.DefaultTableSize"
+    PaginationPosition="@ClientConstant.TablePaginationPosition"
+    ScrollX="100%"
+    RemoteDataSource>
+        <TitleTemplate>
+            <ResourceAuthorize ResourceKey="iot_device_connection_search">
+                <TableSearch TDto="DeviceConnectionDto" @ref="this._tableSearch" OnSearch="OnTableSearch" Settings="@_tableSearchSettings" CustomLocalizer="Localizer" />
+            </ResourceAuthorize>
+            <Row>
+                <AntDesign.Col Span="8">
+                    <ResourceAuthorize ResourceKey="iot_device_connection_delete_selected">
+                        <Button Type="@ButtonType.Primary" Icon="delete" Danger OnClick="OnClickDeletes" Loading="_deletesBtnLoading">
+                            @Localizer[nameof(SharedLocalResource.DeleteSelected)]
+                        </Button>
+                    </ResourceAuthorize>
+                </AntDesign.Col>
+                <AntDesign.Col Span="16" Style="text-align:right">
+                    <Space>
+                        <ResourceAuthorize ResourceKey="iot_device_connection_refresh">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="reload" OnClick="ReLoadTable">
+                                    @Localizer[nameof(SharedLocalResource.Refresh)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                    </Space>
+                </AntDesign.Col>
+            </Row>
+        </TitleTemplate>
+        <ColumnDefinitions>
+            @if (!_userUnauthorizedResources["iot_device_connection_delete_selected"])
+            {
+                <Selection Key="@(model.Id.ToString())"  Width="50" Fixed="left" />
+            }
+            <Column @bind-Field="@model.Tenant" Hidden="@_userUnauthorizedResources[CommonResourceKeys.SystemTenantAdministratorKey]" Width="100" Fixed="left">
+                <span>@model.Tenant?.Name</span>
+            </Column>
+            <Column @bind-Field="@model.Id" Filterable Width="100" Fixed="left" />
+            <Column @bind-Field="@model.DeviceClientId" Filterable Width="150" Fixed="left" />
+            <Column @bind-Field="@model.DeviceId" Filterable Width="80" Fixed="left">
+                @if (model.DeviceId.HasValue)
+            {
+                string url = ReuseTabsPageHelper.CreateTabsUrlBuilder("./iot/device_manager")
+                .FormatTitle(title =>
+                {
+                    return $"{title}[{model.DeviceId.Value.ToString()}]";
+                })
+                .AddParameter(nameof(DeviceDto.Id), model.DeviceId)
+                .Build();
+                    <a href="@(url)"><GuidView Value="@model.DeviceId.Value"></GuidView></a>
+            }
+            </Column>
+            <Column @bind-Field="@model.DeviceConnectionType" Filterable Width="120">
+                <TagPro Text="@model.DeviceConnectionType" Localizer="Localizer" />
+            </Column>
+            <Column @bind-Field="@model.DeviceClientEndpoint" Filterable Width="170" />
+            <Column @bind-Field="@model.DeviceConnectionState" Filterable Width="120">
+                <TagPro Text="@model.DeviceConnectionState" Localizer="Localizer" />
+            </Column>
+            <Column @bind-Field="@model.DeviceDisconnectReason" Filterable Width="180">
+                @if (model.DeviceDisconnectReason.HasValue)
+            {
+                <TagPro Text="@model.DeviceDisconnectReason" Localizer="Localizer" />
+                if (!string.IsNullOrEmpty(model.DeviceDisconnectReasonDescription))
+                {
+                        <span>[@(model.DeviceDisconnectReasonDescription)]</span>
+                }
+            }
+            else
+            {
+                <span>--</span>
+            }
+            </Column>
+            <Column @bind-Field="@model.DeviceDisconnectTime" Width="160">
+                @if (model.DeviceDisconnectTime != null)
+            {
+                <span>@model.DeviceDisconnectTime.Value.ToString(ClientConstant.DateTimeFormat)</span>
+            }
+            else
+            {
+                <span>--</span>
+            }
+            </Column>
+            <Column @bind-Field="@model.DeviceLastPingTime" Width="160">
+                @if (model.DeviceLastPingTime != null)
+            {
+                <span>@model.DeviceLastPingTime.Value.ToString(ClientConstant.DateTimeFormat)</span>
+            }
+            else
+            {
+                <span>--</span>
+            }
+            </Column>
+            <Column @bind-Field="@model.DeviceLastPushDataTime" Width="200">
+                @if (model.DeviceLastPushDataTime != null)
+            {
+                <span>@model.DeviceLastPushDataTime.Value.ToString(ClientConstant.DateTimeFormat)</span>
+            }
+            else
+            {
+                <span>--</span>
+            }
+            </Column>
+            <Column @bind-Field="@model.CreatedTime" Format="@ClientConstant.DateTimeFormat" Sortable DefaultSortOrder="@SortDirection.Descending" Title="@Localizer[nameof(SharedLocalResource.CreatedTime)]" Width="160" Fixed="right" />
+            <ActionColumn Width="150" Fixed="right">
+                <Space>
+                    <ResourceAuthorize ResourceKey="iot_device_connection_detail">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Detail)]" ArrowPointAtCenter="true">
+                                <Button Icon="eye" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnClickDetail(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="iot_device_connection_show_logs">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(IotLocalResource.ShowLogs)]" ArrowPointAtCenter="true">
+                                <Button Icon="iconfont icon-logs" Type="@ButtonType.Primary" OnClick="()=>OnClickShowLogs(model)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="iot_device_connection_delete">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Delete)]" ArrowPointAtCenter="true">
+                                <Button Icon="delete" Type="@ButtonType.Primary" Danger OnClick="()=>OnClickDelete(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                </Space>
+            </ActionColumn>
+        </ColumnDefinitions>
+    </Table>
+</div>

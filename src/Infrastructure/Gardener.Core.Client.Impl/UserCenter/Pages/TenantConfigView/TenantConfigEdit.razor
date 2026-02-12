@@ -1,0 +1,95 @@
+﻿@*page:SystemTenantConfigEdit.razor*@
+@*gardener-time:2024-07-22 17:54:18*@
+@inherits EditOperationDialogBase<SystemTenantConfigDto, Int32,UserCenterResource>
+
+<Form @ref="_editForm"
+      Loading="_dialogLoading.Value"
+      Model="_editModel"
+      LabelCol="new ColLayoutParam { Span = 6 }"
+      WrapperCol="new ColLayoutParam { Span = 18 }"
+      OnFinish="OnFormFinish"
+      ValidateMode="FormValidateMode.Complex"
+      Context="model">
+    @if (base.OperationIs(OperationDialogInputType.Edit | OperationDialogInputType.Select))
+    {
+        <FormItem>
+            <Input @bind-Value="model.Id" Disabled="true" />
+        </FormItem>
+    }
+    <ResourceAuthorize ResourceKey="@CommonResourceKeys.SystemTenantAdministratorKey">
+        <FormItem Label="@Localizer[nameof(SharedLocalResource.Tenant)]">
+            <Select DataSource="@_tenants"
+                    @bind-Value="model.TenantId"
+                    ValueName="@nameof(SystemTenantDto.Id)"
+                    LabelName="@nameof(SystemTenantDto.Name)"
+                    TItem="SystemTenantDto"
+                    TItemValue="Guid"
+                    Disabled="base.operationIsOnlyReadData">
+            </Select>
+        </FormItem>
+    </ResourceAuthorize>
+    <FormItem>
+        <Select DataSource="@_templates"
+                @bind-Value="model.ConfigKey"
+                TItem="SystemTenantConfigTemplateDto"
+                TItemValue="string"
+                ItemValue="x=>x.ConfigKey"
+                ItemLabel="x=>x.Description"
+                Disabled="base.operationIsOnlyReadData"
+                OnSelectedItemChanged="OnSelectedItemChanged">
+        </Select>
+    </FormItem>
+    <FormItem>
+        <TextArea AutoSize="true" MinRows="2" MaxRows="6" @bind-Value="@model.Remark" Disabled="base.operationIsOnlyReadData"></TextArea>
+    </FormItem>
+    <FormItem>
+        <TextArea AutoSize="true" MinRows="2" MaxRows="6" @bind-Value="@model.ConfigValue" Disabled="base.operationIsOnlyReadData"></TextArea>
+        @if (UploadParams != null)
+        {
+            <Gardener.Core.Client.Components.MultiFileUpload UploadParams="UploadParams" OnCompleted="OnUploadCompleted" />
+        }
+    </FormItem>
+    <FormItem>
+        <ResourceAuthorize ResourceKey="user_center_tenant_config_lock">
+            <Authorized>
+                <Switch @bind-Value="@model.IsLocked" Disabled="base.operationIsOnlyReadData"></Switch>
+            </Authorized>
+            <NotAuthorized>
+                <Switch @bind-Value="@model.IsLocked" Disabled="true"></Switch>
+            </NotAuthorized>
+        </ResourceAuthorize>
+    </FormItem>
+
+    @if (this.Options.Type.Equals(OperationDialogInputType.Edit) || this.Options.Type.Equals(OperationDialogInputType.Select))
+    {
+        <FormItem Label="@Localizer[nameof(SharedLocalResource.CreatedTime)]">
+            <span>@model.CreatedTime.ToString(ClientConstant.DateTimeFormat)</span>
+        </FormItem>
+
+    }
+
+    @if (this.Options.Type.Equals(OperationDialogInputType.Edit) || this.Options.Type.Equals(OperationDialogInputType.Select))
+    {
+        <FormItem Label="@Localizer[nameof(SharedLocalResource.UpdatedTime)]">
+            <span>@model.UpdatedTime?.ToString(ClientConstant.DateTimeFormat)</span>
+        </FormItem>
+
+    }
+    <FormItem WrapperColOffset="8" WrapperColSpan="16">
+        <Space>
+            @if (!OperationDialogInputType.Select.Equals(this.Options.Type))
+            {
+                <SpaceItem>
+                    <Button Type="@ButtonType.Primary" OnClick="OnGoToSubmit">
+                        @Localizer[nameof(SharedLocalResource.Save)]
+                    </Button>
+                </SpaceItem>
+            }
+            <SpaceItem>
+                <Button OnClick="_=>OnFormCancel()">
+                    @Localizer[nameof(SharedLocalResource.Cancel)]
+                </Button>
+            </SpaceItem>
+        </Space>
+    </FormItem>
+</Form>

@@ -1,0 +1,69 @@
+﻿@using Gardener.Core.Client.VerifyCode
+@page "/auth/login"
+@layout Gardener.Core.Client.Shared.LoginLayout
+@attribute [AllowAnonymous]
+@attribute [ReuseTabsPage(Ignore = true)]
+<div class="main__b__0">
+    <div class="login">
+        <Form @ref="form"
+              TModel="LoginInput"
+              Model="@loginInput"
+              OnFinish="OnLogin"
+              Loading="loading"
+              LabelCol="new ColLayoutParam { Span = 6 }"
+              WrapperCol="new ColLayoutParam { Span = 18 }"
+              ValidateMode="@FormValidateMode.Rules"
+              ValidateOnChange="true">
+            <Tabs ActiveKey="@(context.LoginType.ToString())">
+                <TabPane Key="1">
+                    <TabTemplate>
+                        @Localizer[nameof(UserCenterResource.AccountPasswordLogin)]
+                    </TabTemplate>
+                    <ChildContent>
+                        <FormItem Label="@Localizer[nameof(UserCenterResource.UserName)]" LabelAlign="AntLabelAlignType.Left" Rules=@(new FormValidationRule[]{ new FormValidationRule{ Required = true,Max = 32,Min = 5} })>
+                            <AntDesign.Input Placeholder="@Localizer[nameof(UserCenterResource.UserName)]" Size="large" @bind-Value="@context.UserName">
+                                <Prefix><Icon Type="user" /></Prefix>
+                            </AntDesign.Input>
+                        </FormItem>
+                        <FormItem Label="@Localizer[nameof(UserCenterResource.LoginPassword)]" LabelAlign="AntLabelAlignType.Left" Rules=@(new FormValidationRule[]{ new FormValidationRule{ Required = true,Max = 32,Min = 5} })>
+                            <AntDesign.Input Placeholder="@Localizer[nameof(UserCenterResource.LoginPassword)]" Size="large" @bind-Value="@context.Password" Type="password">
+                                <Prefix><Icon Type="lock" /></Prefix>
+                            </AntDesign.Input>
+                        </FormItem>
+                        <FormItem Label="@Localizer[nameof(UserCenterResource.VerifyCode)]" LabelAlign="AntLabelAlignType.Left" Rules=@(new FormValidationRule[]{ new FormValidationRule{ Required = true} })>
+                            <Row>
+                                <AntDesign.Col Span="18">
+                                    <AntDesign.Input Placeholder="@Localizer[nameof(UserCenterResource.VerifyCode)]" Size="large" @bind-Value="@context.VerifyCode" TValue="string" OnChange="OnVerifyCodeInputed" />
+                                </AntDesign.Col>
+                                <AntDesign.Col Span="6">
+                                    <ImageVerifyCode @bind-VerifyCodeKey="@context.VerifyCodeKey" @ref="_imageVerifyCode" CharacterCount="4" ></ImageVerifyCode>
+                                    @*<Image Style="height:38px;margin-left:2px;" Src="@verifyCodeImage" Preview="false" />*@
+                                </AntDesign.Col>
+                            </Row>
+                        </FormItem>
+                        <FormItem Label="@Localizer[nameof(UserCenterResource.VerifyCodeKey)]" Style="display:none">
+                            <Input @bind-Value="@context.VerifyCodeKey" />
+                        </FormItem>
+                    </ChildContent>
+                </TabPane>
+            </Tabs>
+            <div>
+                <Checkbox @bind-Value="autoLogin">
+                    @Localizer[nameof(UserCenterResource.AutoLogin)]
+                </Checkbox>
+                @* <a style="float: right;">
+                忘记密码
+                </a> *@
+            </div>
+            <Button Type="@ButtonType.Primary" HtmlType="submit" Class="submit" Size="large" Block>@Localizer[nameof(UserCenterResource.Login)]</Button>
+           @*  <div class="other">
+                其他登录方式
+                <Icon Type="alipay-circle" />
+                <Icon Type="taobao-circle" />
+                <Icon Type="weibo-circle" />
+                <a class="register" href="/user/register">注册账户</a>
+            </div> *@
+        </Form>
+    </div>
+</div>
+<AntContainer />

@@ -1,0 +1,5 @@
+{
+  "OpenAnprSettings": {
+    "ApiUrl": "http://172.17.0.1:8080/visual/plate/recognition"
+  }
+}

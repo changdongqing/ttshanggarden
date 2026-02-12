@@ -1,0 +1,76 @@
+﻿@*page:AppEdit.razor*@
+@*gardener-time:2024-07-16 16:35:58*@
+@inherits EditOperationDialogBase<AppDto, Guid,AppManagerResource>
+
+<Form @ref="_editForm"
+      Loading="_dialogLoading.Value"
+      Model="_editModel"
+      LabelCol="new ColLayoutParam { Span = 6 }"
+      WrapperCol="new ColLayoutParam { Span = 18 }"
+      OnFinish="OnFormFinish"
+      Context="model">
+    @if (!base.OperationIs(OperationDialogInputType.Add))
+    {
+        <FormItem>
+            <Input @bind-Value="model.Id" Disabled="true" Bordered="false" />
+        </FormItem>
+    }
+    <FormItem Rules="[_uniqueValueValidatorRule]">
+        <Input @bind-Value="model.AppName" Disabled="base.operationIsOnlyReadData" Bordered="base.operationCanChangeData" />
+    </FormItem>
+    <FormItem Rules="[_uniqueValueValidatorRule]">
+        <Input @bind-Value="model.PackageName" Disabled="base.operationIsOnlyReadData" Bordered="base.operationCanChangeData" />
+    </FormItem>
+    <FormItem>
+        <TextArea AutoSize="true" MinRows="2" MaxRows="6" @bind-Value="@model.AppDescription" Disabled="base.operationIsOnlyReadData" Bordered="base.operationCanChangeData"></TextArea>
+    </FormItem>
+    <FormItem>
+        <TextArea AutoSize="true" MinRows="2" MaxRows="6" @bind-Value="@model.ContactInformation" Disabled="base.operationIsOnlyReadData" Bordered="base.operationCanChangeData"></TextArea>
+    </FormItem>
+    <FormItem>
+        <TextArea AutoSize="true" MinRows="2" MaxRows="6" @bind-Value="@model.PrivacyPolicy" Disabled="base.operationIsOnlyReadData" Bordered="base.operationCanChangeData"></TextArea>
+    </FormItem>
+    <FormItem>
+        <ResourceAuthorize ResourceKey="app_manager_app_lock">
+            <Authorized>
+                <Switch @bind-Value="@model.IsLocked" Disabled="base.operationIsOnlyReadData"></Switch>
+            </Authorized>
+            <NotAuthorized>
+                <Switch @bind-Value="@model.IsLocked" Disabled="true"></Switch>
+            </NotAuthorized>
+        </ResourceAuthorize>
+    </FormItem>
+
+    @if (this.Options.Type.Equals(OperationDialogInputType.Edit) || this.Options.Type.Equals(OperationDialogInputType.Select))
+    {
+        <FormItem Label="@Localizer[nameof(SharedLocalResource.CreatedTime)]">
+            <span>@model.CreatedTime.ToString(ClientConstant.DateTimeFormat)</span>
+        </FormItem>
+
+    }
+
+    @if (this.Options.Type.Equals(OperationDialogInputType.Edit) || this.Options.Type.Equals(OperationDialogInputType.Select))
+    {
+        <FormItem Label="@Localizer[nameof(SharedLocalResource.UpdatedTime)]">
+            <span>@model.UpdatedTime?.ToString(ClientConstant.DateTimeFormat)</span>
+        </FormItem>
+
+    }
+    <FormItem WrapperColOffset="8" WrapperColSpan="16">
+        <Space>
+            @if (!OperationDialogInputType.Select.Equals(this.Options.Type))
+            {
+                <SpaceItem>
+                    <Button Type="@ButtonType.Primary" OnClick="OnGoToSubmit">
+                        @Localizer[nameof(SharedLocalResource.Save)]
+                    </Button>
+                </SpaceItem>
+            }
+            <SpaceItem>
+                <Button OnClick="_=>OnFormCancel()">
+                    @Localizer[nameof(SharedLocalResource.Cancel)]
+                </Button>
+            </SpaceItem>
+        </Space>
+    </FormItem>
+</Form>

@@ -1,0 +1,14 @@
+﻿@inherits OperationDialogBase<WeighingRecordDto,bool,WeighbridgeLocalResource>
+<Table DataSource="weighingRecordLogs" TItem="WeighingRecordLogDto" Size="TableSize.Small" Bordered PaginationPosition="none">
+    <ChildContent Context="model">
+        <PropertyColumn Property="c => c.WeighingStatus">
+            <TagPro Text="model.WeighingStatus" Localizer="Localizer"></TagPro>
+        </PropertyColumn>
+        <PropertyColumn Property="c => c.Weight" Sortable />
+        <PropertyColumn Property="c => c.WeightChange" Sortable />
+        <PropertyColumn Property="x => x.CommodityCode"></PropertyColumn>
+        <PropertyColumn Property="x => x.CommodityName"></PropertyColumn>
+        <PropertyColumn Property="x => x.OperatorName" Sortable />
+        <PropertyColumn Property="x => x.CreatedTime" Sortable DefaultSortOrder="@SortDirection.Ascending" Format="@ClientConstant.DateTimeFormat" />
+    </ChildContent>
+</Table>

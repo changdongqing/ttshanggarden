@@ -1,0 +1,20 @@
+{
+  "ValidationTypeMessageSettings": {
+    "Definitions": [
+      //设置校验错误提示
+      //[ "Required", "Required" ] //值不能为空或Null
+      //[ "CodeTypeValueRepeat", "CodeTypeValueRepeat" ] //值不能为空或Null
+    ]
+  },
+  "ErrorCodeMessageSettings": {
+    "Definitions": [
+      //这里需要为错误码配置一个提示信息
+      [ "demo_error", "示例错误" ] 
+
+    ]
+  },
+  "FriendlyExceptionSettings": {
+    "DefaultErrorMessage": "System_Default_Error_Message", //系统异常，请联系管理员
+    "HideErrorCode": true
+  }
+}

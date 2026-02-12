@@ -1,0 +1,348 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Account" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="ClientId" xml:space="preserve">
+    <value>ClientId</value>
+  </data>
+  <data name="ConnectingDeviceConnection" xml:space="preserve">
+    <value>ConnectingDeviceConnection</value>
+  </data>
+  <data name="ConnectionType" xml:space="preserve">
+    <value>ConnectionType</value>
+  </data>
+  <data name="Content" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="ContentType" xml:space="preserve">
+    <value>ContentType</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Device" xml:space="preserve">
+    <value>Device</value>
+  </data>
+  <data name="DeviceAccount" xml:space="preserve">
+    <value>DeviceAccount</value>
+  </data>
+  <data name="DeviceClientEndpoint" xml:space="preserve">
+    <value>DeviceClientEndpoint</value>
+  </data>
+  <data name="DeviceClientId" xml:space="preserve">
+    <value>DeviceClientId</value>
+  </data>
+  <data name="DeviceClientIp" xml:space="preserve">
+    <value>DeviceClientIp</value>
+  </data>
+  <data name="DeviceConnection" xml:space="preserve">
+    <value>DeviceConnection</value>
+  </data>
+  <data name="DeviceConnectionId" xml:space="preserve">
+    <value>DeviceConnectionId</value>
+  </data>
+  <data name="DeviceConnectionState" xml:space="preserve">
+    <value>DeviceConnectionState</value>
+  </data>
+  <data name="DeviceConnectionType" xml:space="preserve">
+    <value>DeviceConnectionType</value>
+  </data>
+  <data name="DeviceData" xml:space="preserve">
+    <value>DeviceData</value>
+  </data>
+  <data name="DeviceDisconnectReason" xml:space="preserve">
+    <value>DeviceDisconnectReason</value>
+  </data>
+  <data name="DeviceDisconnectReasonDescription" xml:space="preserve">
+    <value>DeviceDisconnectReasonDescription</value>
+  </data>
+  <data name="DeviceDisconnectTime" xml:space="preserve">
+    <value>DeviceDisconnectTime</value>
+  </data>
+  <data name="DeviceGroup" xml:space="preserve">
+    <value>DeviceGroup</value>
+  </data>
+  <data name="DeviceGroupId" xml:space="preserve">
+    <value>DeviceGroupId</value>
+  </data>
+  <data name="DeviceId" xml:space="preserve">
+    <value>DeviceId</value>
+  </data>
+  <data name="DeviceIdentityIsInvalid" xml:space="preserve">
+    <value>DeviceIdentityIsInvalid</value>
+  </data>
+  <data name="DeviceIdentityIsNullOrEmpty" xml:space="preserve">
+    <value>DeviceIdentityIsNullOrEmpty</value>
+  </data>
+  <data name="DeviceLastPingTime" xml:space="preserve">
+    <value>DeviceLastPingTime</value>
+  </data>
+  <data name="DeviceLastPushDataTime" xml:space="preserve">
+    <value>DeviceLastPushDataTime</value>
+  </data>
+  <data name="DeviceTag" xml:space="preserve">
+    <value>DeviceTag</value>
+  </data>
+  <data name="DownstreamConfig" xml:space="preserve">
+    <value>DownstreamConfig</value>
+  </data>
+  <data name="ExtendData" xml:space="preserve">
+    <value>ExtendData</value>
+  </data>
+  <data name="InputContentType" xml:space="preserve">
+    <value>InputContentType</value>
+  </data>
+  <data name="IsHex" xml:space="preserve">
+    <value>IsHex</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Order" xml:space="preserve">
+    <value>Order</value>
+  </data>
+  <data name="ParentId" xml:space="preserve">
+    <value>ParentId</value>
+  </data>
+  <data name="Product" xml:space="preserve">
+    <value>Product</value>
+  </data>
+  <data name="ProductDescription" xml:space="preserve">
+    <value>ProductDescription</value>
+  </data>
+  <data name="ProductId" xml:space="preserve">
+    <value>ProductId</value>
+  </data>
+  <data name="ProductImages" xml:space="preserve">
+    <value>ProductImages</value>
+  </data>
+  <data name="ProductName" xml:space="preserve">
+    <value>ProductName</value>
+  </data>
+  <data name="ProductType" xml:space="preserve">
+    <value>ProductType</value>
+  </data>
+  <data name="ProductVersion" xml:space="preserve">
+    <value>ProductVersion</value>
+  </data>
+  <data name="SecretKey" xml:space="preserve">
+    <value>SecretKey</value>
+  </data>
+  <data name="ShowConnections" xml:space="preserve">
+    <value>ShowConnections</value>
+  </data>
+  <data name="ShowLogs" xml:space="preserve">
+    <value>ShowLogs</value>
+  </data>
+  <data name="StorageHistoryData" xml:space="preserve">
+    <value>StorageHistoryData</value>
+  </data>
+  <data name="SystemLogType" xml:space="preserve">
+    <value>SystemLogType</value>
+  </data>
+  <data name="Tag" xml:space="preserve">
+    <value>Tag</value>
+  </data>
+  <data name="UpstreamConfig" xml:space="preserve">
+    <value>UpstreamConfig</value>
+  </data>
+  <data name="UserProperties" xml:space="preserve">
+    <value>UserProperties</value>
+  </data>
+  <data name="AdministrativeAction" xml:space="preserve">
+    <value>AdministrativeAction</value>
+  </data>
+  <data name="ConnectionRateExceeded" xml:space="preserve">
+    <value>ConnectionRateExceeded</value>
+  </data>
+  <data name="DeviceConnectFailed" xml:space="preserve">
+    <value>DeviceConnectFailed</value>
+  </data>
+  <data name="DeviceConnecting" xml:space="preserve">
+    <value>DeviceConnecting</value>
+  </data>
+  <data name="DeviceConnectSucceed" xml:space="preserve">
+    <value>DeviceConnectSucceed</value>
+  </data>
+  <data name="DeviceDisconnect" xml:space="preserve">
+    <value>DeviceDisconnect</value>
+  </data>
+  <data name="KeepAliveTimeout" xml:space="preserve">
+    <value>KeepAliveTimeout</value>
+  </data>
+  <data name="menu:iot" xml:space="preserve">
+    <value>menu:iot</value>
+  </data>
+  <data name="menu:iot_device" xml:space="preserve">
+    <value>menu:iot_device</value>
+  </data>
+  <data name="menu:iot_device_connection" xml:space="preserve">
+    <value>menu:iot_device_connection</value>
+  </data>
+  <data name="menu:iot_device_group" xml:space="preserve">
+    <value>menu:iot_device_group</value>
+  </data>
+  <data name="menu:iot_device_system_log" xml:space="preserve">
+    <value>menu:iot_device_system_log</value>
+  </data>
+  <data name="menu:iot_product" xml:space="preserve">
+    <value>menu:iot_product</value>
+  </data>
+  <data name="NormalDisconnection" xml:space="preserve">
+    <value>NormalDisconnection</value>
+  </data>
+  <data name="NotAuthorized" xml:space="preserve">
+    <value>NotAuthorized</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="ServerBusy" xml:space="preserve">
+    <value>ServerBusy</value>
+  </data>
+  <data name="Connecting" xml:space="preserve">
+    <value>Connecting</value>
+  </data>
+  <data name="DeviceIdOrSecretKeyIsInvalid" xml:space="preserve">
+    <value>DeviceIdOrSecretKeyIsInvalid</value>
+  </data>
+  <data name="DeviceIdOrSecretKeyIsNullOrEmpty" xml:space="preserve">
+    <value>DeviceIdOrSecretKeyIsNullOrEmpty</value>
+  </data>
+  <data name="Disconnect" xml:space="preserve">
+    <value>Disconnect</value>
+  </data>
+  <data name="DeviceHasBeenBound" xml:space="preserve">
+    <value>DeviceHasBeenBound</value>
+  </data>
+  <data name="Alias" xml:space="preserve">
+    <value>Alias</value>
+  </data>
+  <data name="AuthenticationInformation" xml:space="preserve">
+    <value>AuthenticationInformation</value>
+  </data>
+  <data name="GenerateConnectConfig" xml:space="preserve">
+    <value>GenerateConnectConfig</value>
+  </data>
+  <data name="Heartbeat" xml:space="preserve">
+    <value>Heartbeat</value>
+  </data>
+</root>

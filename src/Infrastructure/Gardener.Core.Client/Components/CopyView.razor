@@ -1,0 +1,26 @@
+﻿<Button Shape="ButtonShape.Circle" Icon="@IconType.Outline.Copy" Size="@BtnSize" OnClick="CopyValue" />
+@code {
+    [Inject]
+    private IJsTool js { get; set; } = null!;
+    [Inject]
+    private MessageService messageService { get; set; } = null!;
+    [Inject]
+    private ILocalizationLocalizer Localizer { get; set; } = null!;
+    /// <summary>
+    /// Value
+    /// </summary>
+    [Parameter]
+    public string? Value { get; set; }
+    /// <summary>
+    /// ButtonSize
+    /// </summary>
+    [Parameter]
+    public string BtnSize { get; set; } = ButtonSize.Small;
+
+    private Task CopyValue()
+    {
+        if (string.IsNullOrEmpty(Value)) { return Task.CompletedTask; }
+        messageService.Success(Localizer.Combination(nameof(SharedLocalResource.Copy), nameof(SharedLocalResource.Success)));
+        return js.Document.copyTextToClipboard(Value);
+    }
+}

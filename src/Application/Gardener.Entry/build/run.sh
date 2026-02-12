@@ -1,0 +1,1 @@
+docker run --name gardener -p 1000:80 -p 28889:28889 -p28888:28888 -v /data/app_data/gardener/logs:/app/logs -v /data/app_data/gardener/db:/app/db --restart=always -d gardener:2.3.3

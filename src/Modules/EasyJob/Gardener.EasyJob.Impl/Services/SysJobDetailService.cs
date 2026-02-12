@@ -1,0 +1,367 @@
+﻿// -----------------------------------------------------------------------------
+// 园丁,是个很简单的管理系统
+//  gitee:https://gitee.com/hgflydream/Gardener 
+//  issues:https://gitee.com/hgflydream/Gardener/issues 
+// -----------------------------------------------------------------------------
+
+using Furion.Schedule;
+using Gardener.Core.Localization;
+using Gardener.EasyJob.Impl.Core;
+using Gardener.EasyJob.Impl.Entities;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Text.RegularExpressions;
+
+namespace Gardener.EasyJob.Impl.Services
+{
+
+    /// <summary>
+    /// 定时任务-任务服务
+    /// </summary>
+    [ApiDescriptionSettings("EasyJob", Module = "job")]
+    public class SysJobDetailService : ServiceBase<SysJobDetail, SysJobDetailDto, int>, IDynamicApiController, ISysJobDetailService
+    {
+        private readonly IRepository<SysJobDetail> _sysJobDetailRep;
+        private readonly IRepository<SysJobTrigger> _sysJobTriggerRep;
+        private readonly ISchedulerFactory _schedulerFactory;
+        private readonly SchedulerLoader schedulerLoader;
+        /// <summary>
+        /// 定时任务-任务服务
+        /// </summary>
+        /// <param name="sysJobDetailRep"></param>
+        /// <param name="sysJobTriggerRep"></param>
+        /// <param name="schedulerFactory"></param>
+        /// <param name="schedulerLoader"></param>
+        public SysJobDetailService(IRepository<SysJobDetail> sysJobDetailRep,
+            IRepository<SysJobTrigger> sysJobTriggerRep,
+            ISchedulerFactory schedulerFactory,
+            SchedulerLoader schedulerLoader) : base(sysJobDetailRep)
+        {
+            _sysJobDetailRep = sysJobDetailRep;
+            _sysJobTriggerRep = sysJobTriggerRep;
+            _schedulerFactory = schedulerFactory;
+            this.schedulerLoader = schedulerLoader;
+        }
+
+        /// <summary>
+        /// 查询
+        /// </summary>
+        /// <remarks>
+        /// 高级查询，根据输入条件组合进行数据查询和排序
+        /// </remarks>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public override async Task<PageList<SysJobDetailDto>> Search(PageRequest request)
+        {
+            IQueryable<SysJobDetail> queryable = GetSearchQueryable(request.FilterGroups);
+            PageList<SysJobDetailDto> page = await queryable
+                .OrderConditions(request.OrderConditions.ToArray())
+                .Select(x => x.Adapt<SysJobDetailDto>())
+                .ToPageAsync(request.PageIndex, request.PageSize);
+
+            if (page.Items.Any())
+            {
+                // 提取中括号里面的参数值
+                var rgx = new Regex(@"(?i)(?<=\[)(.*)(?=\])");
+                var jobIds = page.Items.Select(x => x.JobId);
+                //获取所有job的触发器
+                List<SysJobTrigger> triggers = _sysJobTriggerRep.AsQueryable(false).Where(x => jobIds.Contains(x.JobId)).ToList();
+                foreach (SysJobDetailDto item in page.Items)
+                {
+                    item.JobTriggers = triggers.Where(x => x.JobId.Equals(item.JobId)).Select(x =>
+                    {
+                        var dto = x.Adapt<SysJobTriggerDto>();
+                        dto.Args = rgx.Match(dto.Args ?? "").Value;
+                        return dto;
+                    });
+                }
+            }
+            return page;
+        }
+
+        /// <summary>
+        /// 添加
+        /// </summary>
+        /// <remarks>
+        /// 添加单条数据
+        /// </remarks>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public override async Task<SysJobDetailDto> Insert(SysJobDetailDto input)
+        {
+            var isExist = await _sysJobDetailRep.AnyAsync(u => u.JobId == input.JobId && u.Id != input.Id);
+            if (isExist)
+                throw Oops.BahLocalFrom<SharedLocalResource>(ExceptionCode.Data_Key_Uniqueness_Conflict, Lo.GetValue<EasyJobLocalResource>(EasyJobLocalResource.JobId));
+
+            SysJobDetail jobDetail = input.Adapt<SysJobDetail>();
+
+            //构建 builder 同时会赋值 执行类相关数据
+            JobBuilder jobBuilder = schedulerLoader.CreateJobBuilder(jobDetail);
+            //入库
+            //扫描后下次不能扫了
+            jobDetail.IncludeAnnotations = false;
+            EntityEntry<SysJobDetail> entityEntry = await _sysJobDetailRep.InsertNowAsync(jobDetail);
+            //入调度
+            _schedulerFactory.AddJob(jobBuilder);
+            //if (jobDetail.CreateType.Equals(JobCreateType.Script) && jobDetail.IncludeAnnotations)
+            //{
+            //    IScheduler scheduler = _schedulerFactory.GetJob(jobDetail.JobId);
+            //    //运行中的detail
+            //    JobDetail detail = scheduler.GetJobDetail();
+            //    entityEntry.Entity.
+
+            //    _sysJobDetailRep.UpdateIncludeNow(entityEntry.Entity);
+
+            //}
+            return entityEntry.Entity.Adapt<SysJobDetailDto>();
+        }
+
+
+
+        /// <summary>
+        /// 更新
+        /// </summary>
+        /// <remarks>
+        /// 更新单条数据
+        /// </remarks>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public override async Task<bool> Update(SysJobDetailDto input)
+        {
+            var isExist = await _sysJobDetailRep.AnyAsync(u => u.JobId == input.JobId && u.Id != input.Id);
+            if (isExist)
+                throw Oops.BahLocalFrom<SharedLocalResource>(ExceptionCode.Data_Key_Uniqueness_Conflict, Lo.GetValue<EasyJobLocalResource>(nameof(SysJobDetailDto.JobId)));
+
+            var sysJobDetail = await _sysJobDetailRep.SingleOrDefaultAsync(x => x.Id == input.Id, false);
+            if (sysJobDetail.JobId != input.JobId)
+                throw Oops.BahLocalFrom<SharedLocalResource>(ExceptionCode.Field_Cannot_Be_Modified, Lo.GetValue<EasyJobLocalResource>(nameof(SysJobDetailDto.JobId)));
+
+            var scheduler = _schedulerFactory.GetJob(sysJobDetail.JobId);
+            if (scheduler == null)
+            {
+                throw Oops.BahLocalFrom<SharedLocalResource>(ExceptionCode.Scheduler_Not_Find);
+            }
+            SysJobDetail newJooDetail = input.Adapt<SysJobDetail>();
+            //更新 任务
+            var jobBuilder = schedulerLoader.CreateOrUpdateJobBuilder(newJooDetail, sysJobDetail);
+            scheduler.UpdateDetail(jobBuilder);
+            //更新 db
+            //扫描后下次不能扫了
+            newJooDetail.IncludeAnnotations = false;
+
+            await _sysJobDetailRep.UpdateNowAsync(newJooDetail);
+            return true;
+        }
+
+        /// <summary>
+        /// 删除
+        /// </summary>
+        /// <remarks>
+        /// 根据主键删除单条数据
+        /// </remarks>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public override async Task<bool> Delete(int id)
+        {
+            SysJobDetail? sysJobDetail = await _sysJobDetailRep.SingleOrDefaultAsync(x => x.Id == id, false);
+            if (sysJobDetail == null)
+            {
+                throw Oops.BahLocalFrom<SharedLocalResource>(ExceptionCode.Data_Not_Find);
+            }
+            _schedulerFactory.RemoveJob(sysJobDetail.JobId);
+
+            // 如果 _schedulerFactory 中不存在 JodId，则无法触发持久化，下面的代码确保作业和触发器能被删除
+            var jobs = await _sysJobDetailRep.AsQueryable(false).Where(u => u.JobId == sysJobDetail.JobId).ToListAsync();
+            foreach (var job in jobs)
+            {
+                _sysJobDetailRep.DeleteNow(job);
+            }
+            var triggers = await _sysJobTriggerRep.AsQueryable(false).Where(u => u.JobId == sysJobDetail.JobId).ToListAsync();
+            foreach (var trigger in triggers)
+            {
+                _sysJobTriggerRep.DeleteNow(trigger);
+            }
+            return true;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        [NonAction]
+        public override Task<bool> Deletes([FromBody] int[] ids)
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        [NonAction]
+        public override Task<bool> FakeDelete(int id)
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        [NonAction]
+        public override Task<bool> FakeDeletes([FromBody] int[] ids)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// 查询触发器
+        /// </summary>
+        /// <remarks>
+        /// 查询任务下所有触发器
+        /// </remarks>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<SysJobTriggerDto>> GetTriggers([ApiSeat(ApiSeats.ActionStart)] int id)
+        {
+            SysJobDetail? sysJobDetail = await _sysJobDetailRep.SingleOrDefaultAsync(x => x.Id == id, false);
+            if (sysJobDetail == null)
+            {
+                throw Oops.BahLocalFrom<SharedLocalResource>(ExceptionCode.Data_Not_Find);
+            }
+            return await _sysJobTriggerRep.AsQueryable(false)
+                .Where(!string.IsNullOrWhiteSpace(sysJobDetail.JobId), u => u.JobId.Contains(sysJobDetail.JobId))
+                .Select(x => x.Adapt<SysJobTriggerDto>())
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// 暂停作业
+        /// </summary>
+        /// <remarks>
+        /// 暂停该作业
+        /// </remarks>
+        /// <param name="id"></param>
+        [HttpPost]
+        public async Task<bool> Pause([ApiSeat(ApiSeats.ActionStart)] int id)
+        {
+            SysJobDetail? sysJobDetail = await _sysJobDetailRep.SingleOrDefaultAsync(x => x.Id == id, false);
+            if (sysJobDetail == null)
+            {
+                throw Oops.BahLocalFrom<SharedLocalResource>(ExceptionCode.Data_Not_Find);
+            }
+            var scheduler = _schedulerFactory.GetJob(sysJobDetail.JobId);
+            if (scheduler == null)
+            {
+                throw Oops.BahLocalFrom<SharedLocalResource>(ExceptionCode.Scheduler_Not_Find);
+            }
+            scheduler.Pause();
+            return true;
+        }
+
+        /// <summary>
+        /// 启动作业
+        /// </summary>
+        /// <remarks>
+        /// 启动该作业
+        /// </remarks>
+        /// <param name="id"></param>
+        [HttpPost]
+        public async Task<bool> Start([ApiSeat(ApiSeats.ActionStart)] int id)
+        {
+            SysJobDetail? sysJobDetail = await _sysJobDetailRep.SingleOrDefaultAsync(x => x.Id == id, false);
+            if (sysJobDetail == null)
+            {
+                throw Oops.BahLocalFrom<SharedLocalResource>(ExceptionCode.Data_Not_Find);
+            }
+            var scheduler = _schedulerFactory.GetJob(sysJobDetail.JobId);
+            if (scheduler == null)
+            {
+                throw Oops.BahLocalFrom<SharedLocalResource>(ExceptionCode.Scheduler_Not_Find);
+            }
+            scheduler.Start();
+            return true;
+        }
+
+        /// <summary>
+        /// 执行作业
+        /// </summary>
+        /// <remarks>
+        /// 执行该作业
+        /// </remarks>
+        /// <param name="id"></param>
+        [HttpPost]
+        public async Task<bool> Run([ApiSeat(ApiSeats.ActionStart)] int id)
+        {
+            SysJobDetail? sysJobDetail = await _sysJobDetailRep.SingleOrDefaultAsync(x => x.Id == id, false);
+            if (sysJobDetail == null)
+            {
+                throw Oops.BahLocalFrom<SharedLocalResource>(ExceptionCode.Data_Not_Find);
+            }
+            var scheduler = _schedulerFactory.GetJob(sysJobDetail.JobId);
+            if (scheduler == null)
+            {
+                throw Oops.BahLocalFrom<SharedLocalResource>(ExceptionCode.Scheduler_Not_Find);
+            }
+            ScheduleResult scheduleResult= _schedulerFactory.TryRunJob(sysJobDetail.JobId,out _);
+            if (ScheduleResult.Succeed.Equals(scheduleResult))
+            { 
+                return true;
+            }
+            throw Oops.BahLocalFrom<SharedLocalResource>(Lo.Combination<EasyJobLocalResource>(nameof(EasyJobLocalResource.RunningStatus)), scheduleResult);
+        }
+
+        /// <summary>
+        /// 暂停所有作业
+        /// </summary>
+        /// <remarks>
+        /// 暂停所有作业
+        /// </remarks>
+        /// <returns></returns>
+        public Task<bool> PauseAll()
+        {
+            _schedulerFactory.PauseAll();
+            return Task.FromResult(true);
+        }
+
+        /// <summary>
+        /// 启动所有作业
+        /// </summary>
+        /// <remarks>
+        /// 启动所有作业
+        /// </remarks>
+        /// <returns></returns>
+        public Task<bool> StartAll()
+        {
+            _schedulerFactory.StartAll();
+            return Task.FromResult(true);
+        }
+
+        /// <summary>
+        /// 强制唤醒作业调度器
+        /// </summary>
+        /// <remarks>
+        /// 强制唤醒作业调度器
+        /// </remarks>
+        public Task<bool> CancelSleep()
+        {
+            _schedulerFactory.CancelSleep();
+            return Task.FromResult(true);
+        }
+
+        /// <summary>
+        /// 强制触发所有作业持久化
+        /// </summary>
+        /// <remarks>
+        /// 强制触发所有作业持久化
+        /// </remarks>
+        public Task<bool> PersistAll()
+        {
+            _schedulerFactory.PersistAll();
+            return Task.FromResult(true);
+        }
+
+    }
+}

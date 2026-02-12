@@ -1,0 +1,99 @@
+﻿@page "/system_manager/attachment"
+@using Gardener.Core.Attachment.Dtos
+@using Gardener.Core.Attachment.Resources
+@using Gardener.Core.Attachment.Enums
+@inherits ListOperateTableBase<SystemAttachmentDto, Guid, AttachmentEdit, AttachmentLocalResource>
+@{
+
+    TableFilter<AttachmentBusinessType>[] attachmentBusinessTypeFilters = EnumHelper.EnumToList<AttachmentBusinessType>().Select(x => { return new TableFilter<AttachmentBusinessType>() { Text = Localizer[EnumHelper.GetEnumDescriptionOrName(x)], Value = x }; }).ToArray();
+
+    TableFilter<AttachmentFileType>[] attachmentFileTypeFilters = EnumHelper.EnumToList<AttachmentFileType>().Select(x => { return new TableFilter<AttachmentFileType>() { Text = Localizer[EnumHelper.GetEnumDescriptionOrName(x)], Value = x }; }).ToArray();
+
+}
+<div>
+    <Table @ref="_table"
+           TItem="SystemAttachmentDto"
+           DataSource="@_datas"
+           Total="_total"
+           OnChange="@OnChange"
+           @bind-PageSize="_pageSize"
+           @bind-PageIndex="_pageIndex"
+           @bind-SelectedRows="_selectedRows"
+           Loading="@_tableLoading.Value"
+           Context="model"
+           Size="@ClientConstant.DefaultTableSize"
+           PaginationPosition="@ClientConstant.TablePaginationPosition"
+           RemoteDataSource
+           RowKey="x=>x.Id.ToString()">
+        <TitleTemplate>
+            <ResourceAuthorize ResourceKey="system_manager_attachment_refresh">
+                <TableSearch TDto="SystemAttachmentDto" @ref="this._tableSearch" OnSearch="OnTableSearch" Settings="@_tableSearchSettings" CustomLocalizer="Localizer" />
+            </ResourceAuthorize>
+            <Row>
+                <AntDesign.Col Span="8">
+                    <ResourceAuthorize ResourceKey="system_manager_attachment_delete_selected">
+                        <Button Type="@ButtonType.Primary" Icon="delete" Danger OnClick="OnClickDeletes" Loading="_deletesBtnLoading">
+                            @Localizer[nameof(SharedLocalResource.DeleteSelected)]
+                        </Button>
+                    </ResourceAuthorize>
+                </AntDesign.Col>
+                <AntDesign.Col Span="16" Style="text-align:right">
+                    <ResourceAuthorize ResourceKey="system_manager_attachment_refresh">
+                        <Button Type="@ButtonType.Primary" Icon="reload" OnClick="ReLoadTable">
+                            @Localizer[nameof(SharedLocalResource.Refresh)]
+                        </Button>
+                    </ResourceAuthorize>
+                </AntDesign.Col>
+            </Row>
+        </TitleTemplate>
+        <ColumnDefinitions>
+            <Selection Hidden="@_userUnauthorizedResources["system_manager_attachment_delete_selected"]" />
+            <Column TData="string" Title="@Localizer[nameof(SharedLocalResource.Tenant)]" Hidden="@_userUnauthorizedResources[CommonResourceKeys.SystemTenantAdministratorKey]">
+                <span>@model.Tenant?.Name</span>
+            </Column>
+            <PropertyColumn Property="x=>x.BusinessType" Filters="attachmentBusinessTypeFilters">
+                <TagPro Text="@Localizer[EnumHelper.GetEnumDescriptionOrName(model.BusinessType)]"></TagPro>
+            </PropertyColumn>
+            <PropertyColumn Property="x=>x.BusinessId" Filterable />
+            <PropertyColumn Property="x=>x.FileType" Filters="attachmentFileTypeFilters">
+                <TagPro Text="@Localizer[EnumHelper.GetEnumDescriptionOrName(model.FileType)]"></TagPro> @model.ContentType
+            </PropertyColumn>
+            <PropertyColumn Property="x=>x.Size" Filterable>
+                @FormatHelper.GetBytesReadable(model.Size)
+            </PropertyColumn>
+            <PropertyColumn Property="x=>x.Suffix" Filterable />
+            <PropertyColumn Property="x=>x.OriginalName" Style="max-width:200px" Filterable />
+            <PropertyColumn Property="x=>x.Url" Filterable>
+                @if (model.FileType.Equals(AttachmentFileType.Image))
+                {
+                    <Image Width="100px" Src="@model.Url" />
+                }
+                else
+                {
+                    <a href="@model.Url" target="_blank">@model.OriginalName</a>
+                }
+
+            </PropertyColumn>
+            <PropertyColumn Property="x=>x.CreatedTime" Format="@ClientConstant.DateTimeFormat" Sortable DefaultSortOrder="@SortDirection.Descending" />
+            <ActionColumn>
+
+                <Space>
+                    <ResourceAuthorize ResourceKey="system_manager_attachment_detail">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Detail)]" ArrowPointAtCenter="true">
+                                <Button Icon="eye" Type="@ButtonType.Primary" Size="@ClientConstant.OperationButtonSize" OnClick="()=>OnClickDetail(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                    <ResourceAuthorize ResourceKey="system_manager_attachment_delete">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Delete)]" ArrowPointAtCenter="true">
+                                <Button Icon="delete" Type="@ButtonType.Primary" Danger OnClick="()=>OnClickDelete(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                </Space>
+            </ActionColumn>
+        </ColumnDefinitions>
+    </Table>
+</div>

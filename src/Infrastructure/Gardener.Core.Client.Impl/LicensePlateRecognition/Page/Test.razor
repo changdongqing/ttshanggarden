@@ -1,0 +1,71 @@
+﻿@page "/lpr/test"
+@using Gardener.Core.LicensePlateRecognition.Dtos
+@using Gardener.Core.LicensePlateRecognition.Enums
+@inherits ReuseTabsPageBase
+@inject MessageService messagerService
+@inject ILocalizationLocalizer localizer
+<Row>
+    <Col Span="24">
+    <Gardener.Core.Client.Components.MultiFileUpload UploadParams="UploadParams" OnHandleChange="OnHandleChange" />
+        @if (recognitionInfos != null)
+        {
+        <ul>
+                @foreach (LPRRecognitionInfo item in recognitionInfos)
+                {
+                <li>分值：@item.Score 车牌：@item.PlateInfo?.PlateNo 颜色：@item.PlateInfo?.PlateColor 排版：@item.PlateInfo?.PlateLayout</li>
+                }
+        </ul>
+        }
+    </Col>
+</Row>
+<Row>
+    <Col Span="24">
+    <Image Width="65Vh" Src="@imageUrl" PreviewSrc="@imageUrl" />
+    </Col>
+</Row>
+@code {
+    string imageUrl = "";
+    List<LPRRecognitionInfo>? recognitionInfos;
+    MultiFileUploadParams UploadParams = new MultiFileUploadParams("lpr/licence-plate/recognition")
+        {
+            MaxFileNumber = 0,
+            ShowUploadList = false,
+            UploadBtnStyle = UploadBtnStyle.Button,
+            UploadListType = UploadListType.Text,
+            UploadData = new Dictionary<string, object>()
+        {
+            {nameof(LPRRecognitionInput.Limit),5},
+            {nameof(LPRRecognitionInput.ServiceType),LPRServiceType.OPENANPR},
+
+        }
+        };
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="fileInfo"></param>
+    void OnHandleChange(UploadInfo fileInfo)
+    {
+        imageUrl = fileInfo.File.ObjectURL;
+        recognitionInfos = null;
+
+        if (fileInfo.File.State == UploadState.Success)
+        {
+            ApiResult<List<LPRRecognitionInfo>?> apiResult =
+                fileInfo.File.GetResponse<ApiResult<List<LPRRecognitionInfo>?>>(new System.Text.Json.JsonSerializerOptions
+                    { PropertyNameCaseInsensitive = true });
+            if (apiResult.Succeeded)
+            {
+                recognitionInfos = apiResult.Data;
+            }
+            else
+            {
+                messagerService.Error($"{apiResult.Errors} [{apiResult.StatusCode}]");
+                messagerService.Error(localizer.Combination(nameof(SharedLocalResource.Upload), nameof(SharedLocalResource.Fail)));
+            }
+        }
+        else if (fileInfo.File.State == UploadState.Fail)
+        {
+            messagerService.Error(localizer.Combination(nameof(SharedLocalResource.Upload), nameof(SharedLocalResource.Error)));
+        }
+    }
+}

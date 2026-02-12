@@ -1,0 +1,375 @@
+﻿@using BlazorMonaco;
+@using BlazorMonaco.Editor
+@using Microsoft.AspNetCore.Components.Web
+
+@page "/dev_tools/code_gen"
+@inherits OperationDialogBase<int, bool, CodeGenLocalResource>
+<div>
+    <Steps Current="stepCurrent">
+        <Step Title="@Localizer[nameof(CodeGenLocalResource.SelectEntityType)]" />
+        <Step Title="@Localizer[nameof(CodeGenLocalResource.EntityConfig)]" />
+        <Step Title="@Localizer[nameof(CodeGenLocalResource.CodeGeneration)]" />
+    </Steps>
+    <div class="steps-content">
+        @if (stepCurrent == 0)
+        {
+            <Row Style="line-height: 70Vh;">
+                <AntDesign.Col Span="12" Offset="6">
+                    @if (entities != null)
+                    {
+                        string nameCancat(string name1, string name2)
+                        {
+                            return name1 + "-" + name2;
+
+                        }
+                        <Select DataSource="entities"
+                                TItem="EntityDescriptionDto"
+                                TItemValue="EntityDescriptionDto"
+                                ItemLabel="x=>{return nameCancat(x.EntityTypeName,x.EntityTypeFullName);}"
+                                @bind-Value="selectEntityDescription"
+                                Placeholder="@Localizer[nameof(CodeGenLocalResource.EntityType)]"
+                                EnableSearch>
+                        </Select>
+                    }
+                </AntDesign.Col>
+            </Row>
+        }
+        else if (stepCurrent == 1)
+        {
+            if (entityConfig != null)
+            {
+                <Collapse Animation Accordion @ref="entityConfigCollapse">
+                    <Panel Header="@Localizer[nameof(CodeGenLocalResource.EntityConfig)]" Key="1" Active="true">
+                        <Form @ref=entityGenerationConfigForm
+                              Loading="@_dialogLoading.Value"
+                              Model="@entityConfig"
+                              LabelCol="new ColLayoutParam { Span = 8 }"
+                              WrapperCol="new ColLayoutParam { Span = 16 }"
+                              OnFinish="OnEntityConfigFormSubmit"
+                              OnFinishFailed="OnSaveEntityConfigFinishFailed"
+                              Context="model">
+                            <Row Gutter="24">
+                                <GridCol Span="6">
+                                    <FormItem>
+                                        <Input @bind-Value="model.Id" Disabled></Input>
+                                    </FormItem>
+                                    <FormItem>
+                                        <Input @bind-Value="model.BaseNameSpace"></Input>
+                                    </FormItem>
+                                    <FormItem>
+                                        <Input @bind-Value="model.ApiNameSpace"></Input>
+                                    </FormItem>
+                                    <FormItem>
+                                        <Input @bind-Value="model.ClientNameSpace"></Input>
+                                    </FormItem>
+                                    <FormItem>
+                                        <Input @bind-Value="model.ResourceKeyPrefix"></Input>
+                                    </FormItem>
+                                </GridCol>
+                                <GridCol Span="6">
+                                    <FormItem>
+                                        <AutoComplete @bind-Value="@model.ModuleName" Options="@modules">
+                                        </AutoComplete>
+                                    </FormItem>
+                                    <FormItem>
+                                        <Input @bind-Value="model.FunctionTagName"></Input>
+                                    </FormItem>
+                                    <FormItem>
+                                        <Input @bind-Value="model.MenuName"></Input>
+                                    </FormItem>
+                                    <FormItem>
+                                        <Input @bind-Value="model.MenuPath"></Input>
+                                    </FormItem>
+                                    <FormItem>
+                                        <Input @bind-Value="model.MenuIcon"></Input>
+                                    </FormItem>
+                                </GridCol>
+                                <GridCol Span="6">
+                                    <FormItem>
+                                        <Switch @bind-Value="model.SupportMultiTenant"></Switch>
+                                    </FormItem>
+                                    <FormItem>
+                                        <Switch @bind-Value="model.EnableSearch"></Switch>
+                                    </FormItem>
+                                    <FormItem>
+                                        <Switch @bind-Value="model.EnableRefresh"></Switch>
+                                    </FormItem>
+                                    <FormItem>
+                                        <Switch @bind-Value="model.EnableDetail"></Switch>
+                                    </FormItem>
+                                    <FormItem>
+                                        <Switch @bind-Value="model.EnableLock"></Switch>
+                                    </FormItem>
+                                </GridCol>
+                                <GridCol Span="6">
+                                    <FormItem>
+                                        <Switch @bind-Value="model.EnableAdd"></Switch>
+                                    </FormItem>
+                                    <FormItem>
+                                        <Switch @bind-Value="model.EnableUpdate"></Switch>
+                                    </FormItem>
+                                    <FormItem>
+                                        <Switch @bind-Value="model.EnableDelete"></Switch>
+                                    </FormItem>
+                                    <FormItem>
+                                        <Switch @bind-Value="model.EnableDeleteSelected"></Switch>
+                                    </FormItem>
+                                    <FormItem>
+                                        <Switch @bind-Value="model.UseTreeList"></Switch>
+                                    </FormItem>
+                                    @if (model.UseTreeList)
+                                    {
+                                        <FormItem>
+                                            <Switch @bind-Value="model.EnableAddChildren"></Switch>
+                                        </FormItem>
+                                    }
+                                </GridCol>
+                            </Row>
+                        </Form>
+                    </Panel>
+                    <Panel Header="@Localizer[nameof(CodeGenLocalResource.FieldConfig)]" Key="2">
+                        @if (selectEntityFieldConfigs != null)
+                        {
+                            <Table DataSource="selectEntityFieldConfigs" PageSize="selectEntityFieldConfigs.Count()" TItem="FieldConfigDto" RowClassName="@(_=>"editable-row")" Bordered TableLayout="fixed" Size=@TableSize.Small HidePagination>
+                                <ChildContent Context="data">
+                                    <Column TData="string" @bind-Field="data.FieldName">
+                                        @data.FieldName
+                                    </Column>
+                                    <Column TData="int" @bind-Field="data.ListOrder" Sortable DefaultSortOrder="SortDirection.Ascending">
+                                        @if (!editSelectEntityFieldConfigCache[data.FieldName].edit)
+                                        {
+                                            @data.ListOrder
+                                        }
+                                        else
+                                        {
+                                            <InputNumber Size="@InputSize.Small" @bind-Value="editSelectEntityFieldConfigCache[data.FieldName].data.ListOrder" />
+                                        }
+                                    </Column>
+                                    <Column TData="int" @bind-Field="data.DetailOrder" Sortable>
+                                        @if (!editSelectEntityFieldConfigCache[data.FieldName].edit)
+                                        {
+                                            @data.DetailOrder
+                                        }
+                                        else
+                                        {
+                                            <InputNumber Size="@InputSize.Small" @bind-Value="editSelectEntityFieldConfigCache[data.FieldName].data.DetailOrder" />
+                                        }
+                                    </Column>
+                                    <Column TData="bool" @bind-Field="data.ShowInList">
+                                        @if (!editSelectEntityFieldConfigCache[data.FieldName].edit)
+                                        {
+                                            <TagYesNo Yes=@data.ShowInList></TagYesNo>
+                                        }
+                                        else
+                                        {
+                                            <Switch Size="small" @bind-Value="editSelectEntityFieldConfigCache[data.FieldName].data.ShowInList" />
+                                        }
+                                    </Column>
+                                    <Column TData="bool" @bind-Field="data.ShowInDetail">
+                                        @if (!editSelectEntityFieldConfigCache[data.FieldName].edit)
+                                        {
+                                            <TagYesNo Yes=@data.ShowInDetail></TagYesNo>
+                                        }
+                                        else
+                                        {
+                                            <Switch Size="small" @bind-Value="editSelectEntityFieldConfigCache[data.FieldName].data.ShowInDetail" />
+                                        }
+                                    </Column>
+                                    <Column TData="bool" @bind-Field="data.CanModity">
+                                        @if (!editSelectEntityFieldConfigCache[data.FieldName].edit)
+                                        {
+                                            <TagYesNo Yes=@data.CanModity></TagYesNo>
+                                        }
+                                        else
+                                        {
+                                            <Switch Size="small" @bind-Value="editSelectEntityFieldConfigCache[data.FieldName].data.CanModity" />
+                                        }
+                                    </Column>
+                                    <Column TData="bool" @bind-Field="data.Filterable">
+                                        @if (!editSelectEntityFieldConfigCache[data.FieldName].edit)
+                                        {
+                                            <TagYesNo Yes=@data.Filterable></TagYesNo>
+                                        }
+                                        else
+                                        {
+                                            <Switch Size="small" @bind-Value="editSelectEntityFieldConfigCache[data.FieldName].data.Filterable" />
+                                        }
+                                    </Column>
+                                    <Column TData="bool" @bind-Field="data.Sortable">
+                                        @if (!editSelectEntityFieldConfigCache[data.FieldName].edit)
+                                        {
+                                            <TagYesNo Yes=@data.Sortable></TagYesNo>
+                                        }
+                                        else
+                                        {
+                                            <Switch Size="small" @bind-Value="editSelectEntityFieldConfigCache[data.FieldName].data.Sortable" />
+                                        }
+                                    </Column>
+                                    <Column TData="bool" @bind-Field="data.IsUnique">
+                                        @if (!editSelectEntityFieldConfigCache[data.FieldName].edit)
+                                        {
+                                            <TagYesNo Yes=@data.IsUnique></TagYesNo>
+                                        }
+                                        else
+                                        {
+                                            <Switch Size="small" @bind-Value="editSelectEntityFieldConfigCache[data.FieldName].data.IsUnique" />
+                                        }
+                                    </Column>
+                                    <Column TData="string" @bind-Field="data.DefaultSortOrder">
+                                        @if (!editSelectEntityFieldConfigCache[data.FieldName].edit)
+                                        {
+                                            <span>@(data.DefaultSortOrder ?? "--")</span>
+                                        }
+                                        else
+                                        {
+                                            <Select DataSource="sortOrders"
+                                                    TItem="KeyValuePair<string,string>"
+                                                    TItemValue="string"
+                                                    ItemValue="x=>x.Value"
+                                                    ItemLabel="x=>x.Key"
+                                                    @bind-Value="editSelectEntityFieldConfigCache[data.FieldName].data.DefaultSortOrder">
+                                            </Select>
+                                        }
+                                    </Column>
+                                    <ActionColumn>
+                                        <Space>
+                                            @if (!editSelectEntityFieldConfigCache[data.FieldName].edit)
+                                            {
+                                                <SpaceItem><a @onclick="() => startEditSelectEntityFieldConfig(data.FieldName)">@Localizer[nameof(SharedLocalResource.Edit)]</a></SpaceItem>
+                                            }
+                                            else
+                                            {
+                                                <SpaceItem><a @onclick="() => saveEditSelectEntityFieldConfig(data.FieldName)">@Localizer[nameof(SharedLocalResource.Save)]</a></SpaceItem>
+                                                <SpaceItem><a @onclick="() => cancelEditSelectEntityFieldConfig(data.FieldName)">@Localizer[nameof(SharedLocalResource.Cancel)]</a></SpaceItem>
+                                            }
+                                        </Space>
+                                    </ActionColumn>
+                                </ChildContent>
+                            </Table>
+                        }
+                    </Panel>
+                </Collapse>
+            }
+
+        }
+        else if (stepCurrent == 2)
+        {
+            <Row>
+                <GridCol Span="6">
+                    <div class="template-box">
+                        @if (generateTemplates != null)
+                        {
+                            <AntList Bordered DataSource="@generateTemplates" Size="small">
+                                <ChildContent Context="item">
+                                    <ListItem>
+                                        @if (!templateIsEdit[item.Id])
+                                        {
+                                            <Button Style="width:100%;overflow:hidden;text-overflow:ellipsis;" Type="@ButtonType.Link" Disabled="templateAdding || templateHaveEdit" OnClick="x=>OnClickCurrentTemplate(item)">@item.TemplateName</Button>
+                                            <Space>
+                                                <SpaceItem>
+                                                    <Tooltip Title="@Localizer[nameof(CodeGenLocalResource.Generation)]" ArrowPointAtCenter="true">
+                                                        <Button Icon="code" Size="@AntDesign.ButtonSize.Small" OnClick="()=>OnClickRunCurrentTemplate(item)" Disabled="templateAdding || templateHaveEdit"></Button>
+                                                    </Tooltip>
+                                                </SpaceItem> 
+                                                <SpaceItem>
+                                                    <Tooltip Title="@Localizer[nameof(SharedLocalResource.Edit)]" ArrowPointAtCenter="true">
+                                                        <Button Icon="edit" Size="@AntDesign.ButtonSize.Small" OnClick="()=>OnClickEditTemplate(item)" Disabled="templateAdding || templateHaveEdit"></Button>
+                                                    </Tooltip>
+                                                </SpaceItem>
+                                                <SpaceItem>
+                                                    <Tooltip Title="@Localizer[nameof(SharedLocalResource.Delete)]" ArrowPointAtCenter="true">
+                                                        <Button Icon="delete" Size="@AntDesign.ButtonSize.Small" Danger OnClick="()=>OnClickDeleteTemplate(item.Id)" Disabled="templateAdding || templateHaveEdit"></Button>
+                                                    </Tooltip>
+                                                </SpaceItem>
+                                            </Space>
+
+                                        }
+                                        else
+                                        {
+                                            <InputGroup Compact>
+                                                <Input Placeholder="@Localizer[CodeGenLocalResource.TemplateName]" @bind-Value="item.TemplateName" />
+                                                <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Check" Size="@ButtonSize.Default" OnClick="x=>OnClickSaveEditTemplate(item)" />
+                                                <Button Type="@ButtonType.Default" Icon="@IconType.Outline.Close" Size="@ButtonSize.Default" OnClick="x=>OnClickCancelEditTemplate(item)" />
+                                            </InputGroup>
+                                        }
+                                    </ListItem>
+                                </ChildContent>
+                            </AntList>
+                        }
+                        @if (templateAdding)
+                        {
+                            <InputGroup Compact>
+                                <Input Placeholder="@Localizer[CodeGenLocalResource.TemplateName]" @bind-Value="@templateAddingName" />
+                                <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Check" Size="@ButtonSize.Default" OnClick="OnClickSaveAddTemplate" />
+                                <Button Type="@ButtonType.Default" Icon="@IconType.Outline.Close" Size="@ButtonSize.Default" OnClick="OnClickCancelAddTemplate" />
+                            </InputGroup>
+                        }
+                        else
+                        {
+                            <Button Icon="@IconType.Outline.Plus" OnClick="OnClickAddTemplate" Disabled="templateAdding || templateHaveEdit"></Button>
+                        }
+                    </div>
+                </GridCol>
+                <GridCol Span="18">
+                    <Tabs @bind-ActiveKey="@editorTabsActiveKey" Animated>
+                        <TabPane Tab="@Localizer[nameof(CodeGenLocalResource.Template)]" Key="template">
+                            <StandaloneCodeEditor @ref="_templateContentEditor" Id="ed1" ConstructionOptions="TemplateEditorConstructionOptions" CssClass="my-editor-class" OnDidInit="TemplateEditorOnDidInit" />
+                        </TabPane>
+                        <TabPane Tab="@Localizer[nameof(CodeGenLocalResource.Code)]" Key="code">
+                            <StandaloneCodeEditor @ref="_codeContentEditor" Id="ed2" ConstructionOptions="CodeEditorConstructionOptions" CssClass="my-editor-class" OnDidInit="CodeEditorOnDidInit" />
+                        </TabPane>
+                    </Tabs>
+                </GridCol>
+            </Row>
+        }
+    </div>
+    <div class="steps-action">
+        @if (stepCurrent > 0)
+        {
+            <Button Type="primary" Disabled="saveEntityConfigBtnLoading || generationCodeLoading || templateAdding || templateHaveEdit" OnClick="OnPreClick">@Localizer[nameof(CodeGenLocalResource.Previous)]</Button>
+        }
+        @if (stepCurrent == 0)
+        {
+            <Button Type="primary" Loading="toEntityConfigBtnLoading" Disabled="@(selectEntityDescription==null)" OnClick="OnToEntityConfigClick">@Localizer[nameof(CodeGenLocalResource.Next)]</Button>
+        }
+        else if (stepCurrent == 1)
+        {
+            <Button Type="primary" Loading="saveEntityConfigBtnLoading" OnClick="OnSaveEntityConfigClick">@Localizer[nameof(CodeGenLocalResource.SaveAndNext)]</Button>
+        }
+        else if (stepCurrent == 2)
+        {
+            <Button Type="primary" Loading="generationCodeLoading" OnClick="OnGenerationClick">@Localizer[nameof(CodeGenLocalResource.Generation)]</Button>
+        }
+    </div>
+</div>
+<style type="text/css">
+    .steps-content {
+        margin-top: 16px;
+        border: 1px dashed #e9e9e9;
+        border-radius: 6px;
+        background-color: #fafafa;
+        height: 70Vh;
+        overflow-y: scroll;
+        text-align: center;
+        padding-top: 20px;
+    }
+
+    .steps-action {
+        margin-top: 24px;
+        text-align: center;
+    }
+
+    .template-box {
+        min-height: 55Vh;
+        max-height: 65Vh;
+        overflow-y: scroll;
+        margin-left: 5px;
+        margin-bottom: 5px;
+    }
+
+    .my-editor-class {
+        height: 55Vh;
+        text-align: left;
+    }
+</style>
+

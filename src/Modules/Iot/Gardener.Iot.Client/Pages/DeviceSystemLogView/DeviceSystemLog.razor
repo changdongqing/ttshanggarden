@@ -1,0 +1,103 @@
+﻿@inherits ListTableBase<DeviceSystemLogDto,long,IotLocalResource>
+@page "/iot/device_system_log"
+<div>
+    <Table @ref="_table"
+           TItem="DeviceSystemLogDto"
+           DataSource="@_datas"
+           Total="_total"
+           OnChange="@OnChange"
+           @bind-PageSize="_pageSize"
+           @bind-PageIndex="_pageIndex"
+           @bind-SelectedRows="_selectedRows"
+           Loading="@_tableLoading.Value"
+           Context="model"
+           ScrollX="100%"
+           Size="@ClientConstant.DefaultTableSize"
+           PaginationPosition="@ClientConstant.TablePaginationPosition"
+    RemoteDataSource>
+        <TitleTemplate>
+            <ResourceAuthorize ResourceKey="iot_device_system_log_search">
+                <TableSearch TDto="DeviceSystemLogDto" @ref="this._tableSearch" OnSearch="OnTableSearch" Settings="@_tableSearchSettings" CustomLocalizer="Localizer" />
+            </ResourceAuthorize>
+            <Row>
+                <AntDesign.Col Span="8">
+                    <ResourceAuthorize ResourceKey="iot_device_system_delete_selected">
+                        <Button Type="@ButtonType.Primary" Icon="delete" Danger OnClick="OnClickDeletes" Loading="_deletesBtnLoading">
+                            @Localizer[nameof(SharedLocalResource.DeleteSelected)]
+                        </Button>
+                    </ResourceAuthorize>
+                </AntDesign.Col>
+                <AntDesign.Col Span="16" Style="text-align:right">
+                    <Space>
+                        <ResourceAuthorize ResourceKey="iot_device_system_log_refresh">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="reload" OnClick="ReLoadTable">
+                                    @Localizer[nameof(SharedLocalResource.Refresh)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                    </Space>
+                </AntDesign.Col>
+            </Row>
+        </TitleTemplate>
+        <ColumnDefinitions>
+            <Selection Key="@(model.Id.ToString())" Hidden="@_userUnauthorizedResources["iot_device_system_delete_selected"]" Width="50" Fixed="left" />
+            <Column @bind-Field="@model.Tenant" Hidden="@_userUnauthorizedResources[CommonResourceKeys.SystemTenantAdministratorKey]" Width="40" Fixed="left">
+                <span>@model.Tenant?.Name</span>
+            </Column>
+            <Column @bind-Field="@model.DeviceConnectionId" Width="60" Fixed="left">
+                @if (model.DeviceConnectionId.HasValue)
+            {
+                var url = ReuseTabsPageHelper.CreateTabsUrlBuilder("./iot/device_connection")
+                .FormatTitle(title =>
+                {
+                    return $"{title}[{model.DeviceConnectionId.Value}]";
+                })
+                .AddParameter(nameof(DeviceConnectionDto.Id), model.DeviceConnectionId)
+                .Build();
+                <a href="@url">
+                        @model.DeviceConnectionId
+                    </a>
+            }
+            else
+            {
+                <span>--</span>
+            }
+            </Column>
+            <Column @bind-Field="@model.DeviceClientId" Width="150" Fixed="left">
+                @{
+                var url = ReuseTabsPageHelper.CreateTabsUrlBuilder("./iot/device_connection")
+                .FormatTitle(title =>
+                {
+                    return $"{title}[{model.DeviceClientId}]";
+                })
+                .AddParameter(nameof(DeviceConnectionDto.DeviceClientId), model.DeviceClientId)
+                .Build();
+                <a href="@url">
+                        @model.DeviceClientId
+                    </a>
+            }
+            </Column>
+            <Column @bind-Field="@model.DeviceId" Width="80" Fixed="left">
+                @if (model.DeviceId.HasValue)
+            {
+                string url = ReuseTabsPageHelper.CreateTabsUrlBuilder("./iot/device_manager")
+                .FormatTitle(title =>
+                {
+                    return $"{title}[{model.DeviceId.Value}]";
+                })
+                .AddParameter(nameof(DeviceDto.Id), model.DeviceId)
+                .Build();
+                    <a href="@(url)"><GuidView Value="@model.DeviceId.Value"></GuidView></a>
+            }
+            </Column>
+            <Column @bind-Field="@model.SystemLogType" Width="80">
+                <TagPro Text="@model.SystemLogType" Localizer="Localizer" />
+            </Column>
+            <Column @bind-Field="@model.Content" Width="100">
+                <p>@model.Content</p>
+            </Column>
+            <Column @bind-Field="@model.CreatedTime" Format="@ClientConstant.DateTimeFormat" Sortable DefaultSortOrder="@SortDirection.Descending" Title="@Localizer[nameof(SharedLocalResource.CreatedTime)]" Width="200" />
+        </ColumnDefinitions>
+    </Table>
+</div>

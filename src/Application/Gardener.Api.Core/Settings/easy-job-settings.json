@@ -1,0 +1,5 @@
+{
+  "EasyJob": {
+    "ClusterId": "gardener-job-node1" //多节点部署，各节点需要修改为唯一值
+  }
+}

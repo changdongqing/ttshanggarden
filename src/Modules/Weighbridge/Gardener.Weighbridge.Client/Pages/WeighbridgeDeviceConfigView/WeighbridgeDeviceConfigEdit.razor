@@ -1,0 +1,91 @@
+﻿@using System.Globalization
+@*page:WeighbridgeDeviceConfigEdit.razor*@
+@*gardener-time:2024-11-05 14:18:37*@
+@inherits EditOperationDialogBase<WeighbridgeDeviceConfigDto, Int32,WeighbridgeLocalResource>
+
+<Form @ref="_editForm"
+Loading="_dialogLoading.Value"
+Model="_editModel"
+LabelCol="new ColLayoutParam { Span = 6 }"
+WrapperCol="new ColLayoutParam { Span = 18 }"
+OnFinish="OnFormFinish"
+ValidateMode="FormValidateMode.Complex"
+Context="model">
+
+    @if (base.OperationIs(OperationDialogInputType.Edit | OperationDialogInputType.Select))
+    {
+        <FormItem>
+            <Input @bind-Value="model.Id" Disabled="true" />
+        </FormItem>
+
+    }
+    <FormItem Rules="[_uniqueValueValidatorRule]" Label="@Localizer[nameof(WeighbridgeLocalResource.Device)]">
+        @if (_devices != null && _devices.Any())
+        {
+            <Select TItem="DeviceDto"
+                    TItemValue="Guid"
+                    DataSource="@_devices"
+                    @bind-Value="@model.DeviceId"
+                    ItemValue="x=>x.Id"
+                    ItemLabel="x=>x.GetFormatName()"
+                    Placeholder="@Localizer.Combination(nameof(SharedLocalResource.Select),nameof(Iot.Resources.IotLocalResource.Device))"
+                    DefaultActiveFirstOption="false"
+                    EnableSearch
+                    FilterExpression="(item, searchValue) => item.Label.IndexOf(searchValue, StringComparison.OrdinalIgnoreCase) >= 0"
+                    Disabled="base.operationIsOnlyReadData">
+            </Select>
+        }
+    </FormItem>
+    <FormItem>
+        <InputNumber @bind-Value="model.MaximumLoad" Disabled="base.operationIsOnlyReadData" /> Kg
+    </FormItem>
+    <FormItem>
+        <InputNumber @bind-Value="model.DivisionValue" Disabled="base.operationIsOnlyReadData" />
+    </FormItem>
+    <FormItem>
+        <InputNumber @bind-Value="model.ErrorCoefficient" Disabled="base.operationIsOnlyReadData" Step="0.01" Max="1" Min="-1" />
+    </FormItem>
+    <FormItem>
+        <ResourceAuthorize ResourceKey="weighbridge_weighbridge_device_config_lock">
+            <Authorized>
+                <Switch @bind-Value="@model.IsLocked" Disabled="base.operationIsOnlyReadData"></Switch>
+            </Authorized>
+            <NotAuthorized>
+                <Switch @bind-Value="@model.IsLocked" Disabled="true"></Switch>
+            </NotAuthorized>
+        </ResourceAuthorize>
+    </FormItem>
+
+    @if (this.Options.Type.Equals(OperationDialogInputType.Edit) || this.Options.Type.Equals(OperationDialogInputType.Select))
+    {
+        <FormItem Label="@Localizer[nameof(SharedLocalResource.CreatedTime)]">
+            <span>@model.CreatedTime.ToString(ClientConstant.DateTimeFormat)</span>
+        </FormItem>
+
+    }
+
+    @if (this.Options.Type.Equals(OperationDialogInputType.Edit) || this.Options.Type.Equals(OperationDialogInputType.Select))
+    {
+        <FormItem Label="@Localizer[nameof(SharedLocalResource.UpdatedTime)]">
+            <span>@model.UpdatedTime?.ToString(ClientConstant.DateTimeFormat)</span>
+        </FormItem>
+
+    }
+    <FormItem WrapperColOffset="8" WrapperColSpan="16">
+        <Space>
+            @if (!OperationDialogInputType.Select.Equals(this.Options.Type))
+            {
+                <SpaceItem>
+                    <Button Type="@ButtonType.Primary" OnClick="OnGoToSubmit">
+                        @Localizer[nameof(SharedLocalResource.Save)]
+                    </Button>
+                </SpaceItem>
+            }
+            <SpaceItem>
+                <Button OnClick="_=>OnFormCancel()">
+                    @Localizer[nameof(SharedLocalResource.Cancel)]
+                </Button>
+            </SpaceItem>
+        </Space>
+    </FormItem>
+</Form>

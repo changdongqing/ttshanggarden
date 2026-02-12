@@ -1,0 +1,35 @@
+﻿@inherits OperationDialogBase<DeviceDto,bool,IotLocalResource>
+<Tabs DefaultActiveKey="0" TabPosition="@TabPosition.Left" Style="height: 100%;" OnChange="OnTabChange">
+    <TabPane Key="Tcp" Tab="@("TCP")">
+        <Descriptions Bordered Layout="@DescriptionsLayout.Horizontal" Column="1">
+            <DescriptionsItem Title="@Localizer[nameof(IotLocalResource.Heartbeat)]">
+                <Flex Justify="space-between"><Input @bind-Value="tcpPingContent"></Input><CopyView Value="@tcpPingContent" BtnSize="@ButtonSize.Default"></CopyView></Flex>
+            </DescriptionsItem>
+            <DescriptionsItem Title="@Localizer[nameof(IotLocalResource.AuthenticationInformation)]">
+                <Flex Justify="space-between"><TextArea @bind-Value="tcpConnectInfo" MinRows="2"></TextArea><CopyView Value="@tcpConnectInfo" BtnSize="@ButtonSize.Default"></CopyView></Flex>
+            </DescriptionsItem>
+        </Descriptions>
+    </TabPane>
+    <TabPane Key="Mqtt" Tab=@("Mqtt")>
+        <Descriptions Bordered Layout="@DescriptionsLayout.Horizontal" Column="1">
+            <DescriptionsItem Title="@Localizer[nameof(IotLocalResource.ClientId)]">
+                <Flex Justify="space-between"><Input @bind-Value="this.Options.ClientId"></Input><CopyView Value="@this.Options.ClientId" BtnSize="@ButtonSize.Default"></CopyView></Flex>
+            </DescriptionsItem>
+            <DescriptionsItem Title="@Localizer[nameof(IotLocalResource.Account)]">
+                <Flex Justify="space-between"><Input @bind-Value="this.Options.Account"></Input><CopyView Value="@this.Options.Account" BtnSize="@ButtonSize.Default"></CopyView></Flex>
+            </DescriptionsItem>
+            <DescriptionsItem Title="@Localizer[nameof(IotLocalResource.SecretKey)]">
+                <Flex Justify="space-between"><Input @bind-Value="this.Options.SecretKey"></Input><CopyView Value="@this.Options.SecretKey" BtnSize="@ButtonSize.Default"></CopyView></Flex>
+            </DescriptionsItem>
+            <DescriptionsItem Title="订阅主题（私有）">
+                <Flex Justify="space-between"><Input Value="@($"gardener/iot/mqtt/subscribe/data/{this.Options.ClientId}")"></Input><CopyView Value="@($"gardener/iot/mqtt/subscribe/data/{this.Options.ClientId}")" BtnSize="@ButtonSize.Default"></CopyView></Flex>
+            </DescriptionsItem>
+            <DescriptionsItem Title="订阅主题（全局）">
+                <Flex Justify="space-between"><Input Value="@("gardener/iot/mqtt/subscribe/data/all")"></Input><CopyView Value="@("gardener/iot/mqtt/subscribe/data/all")" BtnSize="@ButtonSize.Default"></CopyView></Flex>
+            </DescriptionsItem>
+            <DescriptionsItem Title="发布主题">
+                <Flex Justify="space-between"><Input Value="@($"gardener/iot/mqtt/publish/data/{this.Options.ClientId}")"></Input><CopyView Value="@($"gardener/iot/mqtt/publish/data/{this.Options.ClientId}")" BtnSize="@ButtonSize.Default"></CopyView></Flex>
+            </DescriptionsItem>
+        </Descriptions>
+    </TabPane>
+</Tabs>

@@ -1,0 +1,106 @@
+﻿@inherits EditOperationDialogBase<DeviceConnectionDto,long,IotLocalResource>
+@if (_editModel != null)
+{
+    <Form Loading="@_dialogLoading.Value"
+          Model="_editModel"
+          LabelCol="new ColLayoutParam { Span = 10 }"
+          WrapperCol="new ColLayoutParam { Span = 14 }"
+          OnFinish="OnFormFinish"
+          Context="model">
+        <Row Gutter="24">
+            <GridCol Span="11">
+                <ResourceAuthorize ResourceKey="@CommonResourceKeys.SystemTenantAdministratorKey">
+                    <FormItem Label="@Localizer[nameof(SharedLocalResource.Tenant)]">
+                        <Select DataSource="@_tenants"
+                                @bind-Value="@model.TenantId"
+                                ValueName="@nameof(SystemTenantDto.Id)"
+                                LabelName="@nameof(SystemTenantDto.Name)"
+                                TItem="SystemTenantDto"
+                                TItemValue="Guid?"
+                                AllowClear
+                                Bordered="operationCanChangeData">
+                        </Select>
+                    </FormItem>
+                </ResourceAuthorize>
+                <FormItem>
+                    <Input @bind-Value="@model.Id" Bordered="operationCanChangeData" />
+                </FormItem>
+                <FormItem>
+                    <Input @bind-Value="@model.DeviceClientId" Bordered="operationCanChangeData" />
+                </FormItem>
+                <FormItem>
+                    <Input @bind-Value="@model.DeviceId" Bordered="operationCanChangeData" />
+                </FormItem>
+                <FormItem>
+                    <Input @bind-Value="@model.DeviceConnectionType" hidden />
+                    <TagPro Text="@model.DeviceConnectionType" Localizer="Localizer" />
+                </FormItem>
+                
+                <FormItem>
+                    <Input @bind-Value="@model.DeviceClientEndpoint" Bordered="operationCanChangeData" />
+                </FormItem>
+                <FormItem>
+                    <Input @bind-Value="@model.DeviceConnectionState" hidden />
+                    <TagPro Text="@model.DeviceConnectionState" Localizer="Localizer" />
+                </FormItem>
+            </GridCol>
+            <GridCol Offset="1" Span="12">
+                <FormItem>
+                    <Input @bind-Value="@model.DeviceDisconnectTime" hidden />
+                    @if (model.DeviceDisconnectTime.HasValue)
+                {
+                    <span>@model.DeviceDisconnectTime.Value.ToString(ClientConstant.DateTimeFormat)</span>
+                }
+                </FormItem>
+                <FormItem>
+                    <Input @bind-Value="@model.DeviceDisconnectReason" hidden />
+                    <TagPro Text="@model.DeviceDisconnectReason" Localizer="Localizer" />
+                </FormItem>
+                <FormItem>
+                    <TextArea @bind-Value="@model.DeviceDisconnectReasonDescription" Bordered="operationCanChangeData" AutoSize />
+                </FormItem>
+                <FormItem>
+                    <Input @bind-Value="@model.DeviceLastPingTime" hidden />
+                    @if (model.DeviceLastPingTime.HasValue)
+                {
+                    <span>@model.DeviceLastPingTime.Value.ToString(ClientConstant.DateTimeFormat)</span>
+                }
+                </FormItem>
+                <FormItem>
+                    <Input @bind-Value="@model.DeviceLastPushDataTime" hidden />
+                    @if (model.DeviceLastPushDataTime.HasValue)
+                {
+                    <span>@model.DeviceLastPushDataTime.Value.ToString(ClientConstant.DateTimeFormat)</span>
+                }
+                </FormItem>
+                @if (this.Options.Type.Equals(OperationDialogInputType.Edit) || this.Options.Type.Equals(OperationDialogInputType.Select))
+            {
+                <FormItem Label="@Localizer[nameof(SharedLocalResource.CreatedTime)]">
+                        <span>@model.CreatedTime.ToString(ClientConstant.DateTimeFormat)</span>
+                    </FormItem>
+                <FormItem Label="@Localizer[nameof(SharedLocalResource.UpdatedTime)]">
+                        <span>@model.UpdatedTime?.ToString(ClientConstant.DateTimeFormat)</span>
+                    </FormItem>
+            }
+            </GridCol>
+        </Row>
+        
+        <FormItem WrapperColOffset="12" WrapperColSpan="12">
+            <Space>
+                @if (!OperationDialogInputType.Select.Equals(this.Options.Type))
+            {
+                <SpaceItem>
+                        <Button Type="@ButtonType.Primary" HtmlType="submit">
+                            @Localizer[nameof(SharedLocalResource.Save)]
+                        </Button>
+                    </SpaceItem>
+            }
+                <SpaceItem>
+                    <Button OnClick="_=>OnFormCancel()">
+                        @Localizer[nameof(SharedLocalResource.Cancel)]
+                    </Button>
+                </SpaceItem>
+            </Space>
+        </FormItem>
+    </Form>
+}
