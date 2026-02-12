@@ -15,12 +15,6 @@ TTShang是基于 .net 10开发的后台管理系统，系统前后台分离，ap
 - 细:  **文档详细** 、实现细节拉满
 - 强：多模块划分、拥有强大扩展性
 
-## 项目文档
-[项目说明文档](https://gitee.com/hgflydream/Gardener/wikis)
-
-## 贡献代码
-
-感谢每一位为**TTShang**贡献代码的朋友，欢迎大家提交 PR 或 Issue。
 
 ## 基情链接
 👉 **[Furion](https://gitee.com/dotnetchina/Furion)**  
