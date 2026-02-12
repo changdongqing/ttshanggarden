@@ -10,8 +10,8 @@
       {
         "FileStoreServiceId": "aliOss1",
         "FileStoreServiceType": "ALiOSS",
-        "AccessKeyId": "LTAI5t8t8qE8FtzzvkJNT5Zg",
-        "AccessKeySecret": "QftKwydzLPpdmzXR5h8nGBZE1Bkmlz",
+        "AccessKeyId": "",
+        "AccessKeySecret": "",
         "SecurityToken": null,
         "BucketName": "gardenertest",
         "Endpoint": "https://oss-cn-beijing.aliyuncs.com",
