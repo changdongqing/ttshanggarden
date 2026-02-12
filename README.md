@@ -1,4 +1,3 @@
-<p align="center"><img src="https://images.gitee.com/uploads/images/2020/1204/145903_cea2bf9d_302533.png" height="80"/></p>
 
 中文 | [English](README.en.md)
 
