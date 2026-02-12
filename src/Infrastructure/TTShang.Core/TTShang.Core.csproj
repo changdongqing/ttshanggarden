@@ -11,10 +11,10 @@
 		<ProjectReference Include="..\TTShang.Core.Shared\TTShang.Core.Shared.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="DistributedLock.Core" Version="1.0.7" />
+		<PackageReference Include="DistributedLock.Core" Version="1.0.8" />
 		<PackageReference Include="Mapster" Version="7.4.0" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="8.0.8" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="10.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="6.0.0-preview.4.21253.5" />
 	</ItemGroup>
 	<ItemGroup>

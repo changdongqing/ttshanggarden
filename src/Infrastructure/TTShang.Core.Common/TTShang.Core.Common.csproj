@@ -7,9 +7,9 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="GardenerFurion" Version="1.0.5" />
-		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.4.4" />
-		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.2.0" />
+		<PackageReference Include="GardenerFurion" Version="1.0.6" />
+		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.3.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\TTShang.Core.Util\TTShang.Core.Util.csproj" />
