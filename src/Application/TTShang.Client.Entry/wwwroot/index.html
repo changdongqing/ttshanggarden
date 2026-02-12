@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>loading...</title>
+    <base href="/" />
+    <link href="./css/index.css?v=0.1.15" rel="stylesheet" />
+    <link href="./css/site.css?v=0.1.15" rel="stylesheet" />
+    <link href="./_content/AntDesign/css/ant-design-blazor.css?v=0.14.3" rel="stylesheet" />
+    <link href="./_content/AntDesign.ProLayout/css/ant-design-pro-layout-blazor.css?v=0.13.1" rel="stylesheet" />
+    <link href="./iconfont/iconfont.css?v=0.1.15" rel="stylesheet" />
+    <link href="./TTShang.Client.Entry.styles.css?v=0.1.15" rel="stylesheet" />
+    <link href="manifest.webmanifest?v=0.1.15" rel="manifest" />
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png?v=0.1.15" />
+</head>
+<body>
+    <app id="app">
+        <div style="
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          flex-direction: column;
+          min-height: 420px;
+          height: 100%;
+        ">
+            <img src="./assets/logo.png" alt="logo" width="100" />
+            <div class="page-loading-warp">
+                <div class="ant-spin ant-spin-lg ant-spin-spinning">
+                    <span class="ant-spin-dot ant-spin-dot-spin">
+                        <i class="ant-spin-dot-item"></i><i class="ant-spin-dot-item"></i><i class="ant-spin-dot-item"></i><i class="ant-spin-dot-item"></i>
+                    </span>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: center; align-items: center;">
+                TTShang
+            </div>
+        </div>
+    </app>
+
+    <script src="./_framework/blazor.webassembly.js?v=0.1.15" autostart="false"></script>
+    <script type="module">
+        import { BrotliDecode } from './js/decode.min.js';
+        Blazor.start({
+            loadBootResource: function (type, name, defaultUri, integrity) {
+                if (type !== 'dotnetjs' && location.hostname !== 'localhost' && type !== 'configuration') {
+                    return (async function () {
+                        const response = await fetch(defaultUri + '.br', { cache: 'no-cache' });
+                        if (!response.ok) {
+                            throw new Error(response.statusText);
+                        }
+                        const originalResponseBuffer = await response.arrayBuffer();
+                        const originalResponseArray = new Int8Array(originalResponseBuffer);
+                        const decompressedResponseArray = BrotliDecode(originalResponseArray);
+                        const contentType = type ===
+                            'dotnetwasm' ? 'application/wasm' : 'application/octet-stream';
+                        return new Response(decompressedResponseArray,
+                            { headers: { 'content-type': contentType } });
+                    })();
+                }
+            }
+        });
+    </script>
+    <!-- <script src="./_content/AntDesign/js/ant-design-blazor.js?v=0.14.3"></script> -->
+    <!--Charts-->
+    <script src="./js/g2plot.js?v=0.14.3" defer></script>
+    <script src="./_content/AntDesign.Charts/ant-design-charts-blazor.js?v=0.13.1" defer></script>
+    <!--BlazorMonaco-->
+    <script src="./_content/BlazorMonaco/jsInterop.js?v=0.34.1" defer></script>
+    <script src="./_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js?v=0.34.1" defer></script>
+    <!--<script src="./_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js?v=0.34.1" defer></script>-->
+    <script type="text/javascript">
+        function downloadJSAtOnload() {
+    var jsList = ["./_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js?v=0.34.1"];
+            for (var i = 0; i < jsList.length; i++) {
+                var element = document.createElement("script");
+                element.src = jsList[i];
+                document.body.appendChild(element);
+            }
+        }
+        if (window.addEventListener)
+            window.addEventListener("load", downloadJSAtOnload, false);
+        else if (window.attachEvent)
+            window.attachEvent("onload", downloadJSAtOnload);
+        else
+            window.onload = downloadJSAtOnload;
+    </script>
+    <script type="text/javascript">
+        navigator.serviceWorker.register('service-worker.js');
+    </script>
+</body>
+</html>

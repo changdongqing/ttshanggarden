@@ -1,0 +1,180 @@
+﻿@using TTShang.Weighbridge.Enums
+@*page:WeighingRecordEdit.razor*@
+@*gardener-time:2024-07-22 16:06:29*@
+@inherits EditOperationDialogBase<WeighingRecordDto, Guid,WeighbridgeLocalResource>
+
+<Form @ref="_editForm"
+      Loading="_dialogLoading.Value"
+      Model="_editModel"
+      LabelCol="new ColLayoutParam { Span = 5 }"
+      WrapperCol="new ColLayoutParam { Span = 19 }"
+      OnFinish="OnFormFinish"
+      ValidateMode="FormValidateMode.Complex"
+      Context="model">
+    <Row Gutter="24">
+        <GridCol Span="8">
+            @if (base.OperationIs(OperationDialogInputType.Edit | OperationDialogInputType.Select))
+            {
+                <FormItem>
+                    <Input @bind-Value="model.Id" Disabled="true" />
+                </FormItem>
+            }
+            <ResourceAuthorize ResourceKey="@CommonResourceKeys.SystemTenantAdministratorKey">
+                <FormItem Label="@Localizer[nameof(SharedLocalResource.Tenant)]">
+                    <Select DataSource="_tenants"
+                            @bind-Value="model.TenantId"
+                            ValueName="@nameof(SystemTenantDto.Id)"
+                            LabelName="@nameof(SystemTenantDto.Name)"
+                            TItem="SystemTenantDto"
+                            TItemValue="Guid ?"
+                            AllowClear
+                            Disabled="base.operationIsOnlyReadData">
+                    </Select>
+                </FormItem>
+            </ResourceAuthorize>
+            <FormItem>
+                <Input @bind-Value="model.VehicleType" Disabled="base.operationIsOnlyReadData" />
+            </FormItem>
+            <FormItem>
+                <InputNumber @bind-Value="model.MaximumLoad" Disabled="base.operationIsOnlyReadData" />
+            </FormItem>
+            <FormItem Label="@Localizer[WeighbridgeLocalResource.WeighbridgeConfig]">
+                <Select DataSource="weighbridgeConfigs"
+                        @bind-Value="model.WeighbridgeConfigId"
+                        TItem="WeighbridgeConfigDto"
+                        TItemValue="Guid"
+                        ItemLabel="x => x.Name"
+                        ItemValue="x => x.Id"
+                        Disabled="base.operationIsOnlyReadData"
+                        DefaultActiveFirstOption>
+                </Select>
+            </FormItem>
+            <FormItem>
+                <Select DataSource="EnumHelper.EnumToDictionary<WeighingStatus>()"
+                        TItem="KeyValuePair<WeighingStatus, string>"
+                        TItemValue="WeighingStatus"
+                        ItemValue="x => x.Key"
+                        ItemLabel="x => Localizer[x.Value]"
+                        @bind-Value="model.WeighingStatus"
+                        Disabled="base.operationIsOnlyReadData">
+                </Select>
+            </FormItem>
+            <FormItem>
+                <Input @bind-Value="model.Driver" Disabled="base.operationIsOnlyReadData" />
+            </FormItem>
+            <FormItem>
+                <Input @bind-Value="model.PlateNumber" Disabled="base.operationIsOnlyReadData" />
+            </FormItem>
+            <FormItem>
+                <InputNumber @bind-Value="model.Weight" Disabled="base.operationIsOnlyReadData" />
+            </FormItem>
+            <FormItem>
+                <InputNumber @bind-Value="model.TareWeight" Disabled="base.operationIsOnlyReadData" />
+            </FormItem>
+        </GridCol>
+        <GridCol Span="16">
+            <FormItem Label="@Localizer[WeighbridgeLocalResource.WeighingNumber]">
+                <InputNumber Value="model.WeighingRecordLogs.Where(x => !x.IsDeleted).Count()" Disabled="true" />
+            </FormItem>
+            <FormItem Label="@Localizer[WeighbridgeLocalResource.Commodity]">
+                <Table DataSource="model.WeighingRecordLogs.Where(x=>!x.IsDeleted)" TItem="WeighingRecordLogDto" Size="TableSize.Small" Bordered PaginationPosition="none">
+                    <TitleTemplate>
+                        @if (!base.operationIsOnlyReadData)
+                        {
+                            <Flex Justify="end" Gap="10">
+                                <Button Type="primary" @onclick="() => model.WeighingRecordLogs.Add(new WeighingRecordLogDto() { CreatedTime = DateTimeOffset.Now, WeighingStatus = WeighingStatus.NoLoadGoods })">@Localizer[SharedLocalResource.Add]</Button>
+                            </Flex>
+                        }
+                    </TitleTemplate>
+                    <ChildContent Context="data">
+                        <Column TData="string" Title="@Localizer[WeighbridgeLocalResource.WeighingTime]">
+                            <DatePicker TValue="DateTimeOffset" ShowTime="@true" @bind-Value=data.CreatedTime Format="yyyy-MM-dd HH:mm:ss" Disabled="base.operationIsOnlyReadData" />
+                        </Column>
+                        <Column TData="string" Title="@Localizer[WeighbridgeLocalResource.WeighingStatus]">
+                            <Select DataSource="EnumHelper.EnumToList<WeighingStatus>()"
+                                    @bind-Value="data.WeighingStatus"
+                                    TItem="WeighingStatus"
+                                    TItemValue="WeighingStatus"
+                                    ItemLabel="x => EnumHelper.GetEnumDescription(x)"
+                                    ItemValue="x => x"
+                                    Disabled="base.operationIsOnlyReadData"
+                            >
+                            </Select>
+                        </Column>
+                        <Column TData="string" Title="@Localizer[WeighbridgeLocalResource.Commodity]">
+                            <Select DataSource="commodityConfigs"
+                                    @bind-Value="data.CommodityCode"
+                                    TItem="CommodityDto"
+                                    TItemValue="string"
+                                    ItemLabel="x => FormatCommodityLable(x)"
+                                    ItemValue="x => x.CommodityCode"
+                                    Disabled="base.operationIsOnlyReadData"
+                                    OnSelectedItemChanged="cm => OnSelectedItemChangedCommodity(data, cm)"
+                                    AllowClear
+                                    >
+                            </Select>
+                        </Column>
+                        <Column TData="string" Title="@Localizer[WeighbridgeLocalResource.Weight]">
+                            <InputNumber @bind-Value="data.Weight" Disabled="base.operationIsOnlyReadData" />
+                        </Column>
+                        <ActionColumn Hidden=base.operationIsOnlyReadData>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Delete)]" ArrowPointAtCenter="true">
+                                <Button Icon="@IconType.Outline.Delete" Type="@ButtonType.Primary" Danger OnClick="() => data.IsDeleted=true"></Button>
+                            </Tooltip>
+                        </ActionColumn>
+                    </ChildContent>
+                </Table>
+            </FormItem>
+
+            <FormItem>
+                <ResourceAuthorize ResourceKey="weighbridge_weighing_record_lock">
+                    <Authorized>
+                        <Switch @bind-Value="@model.IsLocked" Disabled="base.operationIsOnlyReadData"></Switch>
+                    </Authorized>
+                    <NotAuthorized>
+                        <Switch @bind-Value="@model.IsLocked" Disabled="true"></Switch>
+                    </NotAuthorized>
+                </ResourceAuthorize>
+            </FormItem>
+            @if (!this.Options.Type.Equals(OperationDialogInputType.Add))
+            {
+                <FormItem>
+                    <Input @bind-Value="model.OperatorName" Disabled="true" />
+                </FormItem>
+            }
+            @if (this.Options.Type.Equals(OperationDialogInputType.Edit) || this.Options.Type.Equals(OperationDialogInputType.Select))
+            {
+                <FormItem Label="@Localizer[nameof(SharedLocalResource.CreatedTime)]">
+                    <span>@model.CreatedTime.ToString(ClientConstant.DateTimeFormat)</span>
+                </FormItem>
+            }
+            @if (this.Options.Type.Equals(OperationDialogInputType.Edit) || this.Options.Type.Equals(OperationDialogInputType.Select))
+            {
+                <FormItem Label="@Localizer[nameof(SharedLocalResource.UpdatedTime)]">
+                    <span>@model.UpdatedTime?.ToString(ClientConstant.DateTimeFormat)</span>
+                </FormItem>
+            }
+        </GridCol>
+    </Row>
+    <Row Gutter="24">
+        <GridCol Offset="6" Span="18">
+            <FormItem WrapperColOffset="8" WrapperColSpan="16">
+                <Space>
+                    @if (!OperationDialogInputType.Select.Equals(this.Options.Type))
+                    {
+                        <SpaceItem>
+                            <Button Type="@ButtonType.Primary" OnClick="OnGoToSubmit">
+                                @Localizer[nameof(SharedLocalResource.Save)]
+                            </Button>
+                        </SpaceItem>
+                    }
+                    <SpaceItem>
+                        <Button OnClick="_ => OnFormCancel()">
+                            @Localizer[nameof(SharedLocalResource.Cancel)]
+                        </Button>
+                    </SpaceItem>
+                </Space>
+            </FormItem>
+        </GridCol>
+    </Row>
+</Form>

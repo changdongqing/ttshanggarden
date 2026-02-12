@@ -1,0 +1,18 @@
+﻿@using TTShang.Core.Authorization.Resources
+@code {
+    public static RenderFragment<LoginLogDto> NotificationContent = (log) =>@<div>
+        @{
+    ILocalizationLocalizer? localizer=Lo.GetService<ILocalizationLocalizer<AuthorizationLocalResource>>();
+        }
+        <GridRow><GridCol Span="10" Style="text-align:right;">@(Lo.GetValue<AuthorizationLocalResource>(nameof(AuthorizationLocalResource.LoginTime)))：</GridCol><GridCol Span="14">@log.LoginTime.ToString(ClientConstant.DateTimeFormat)</GridCol></GridRow>
+        <GridRow><GridCol Span="10" Style="text-align:right;">@(Lo.GetValue<AuthorizationLocalResource>(nameof(AuthorizationLocalResource.LoginClientType)))：</GridCol><GridCol Span="14"><TagPro Text="@log.LoginClientType" Localizer="localizer"></TagPro></GridCol></GridRow>
+        <GridRow><GridCol Span="10" Style="text-align:right;">@(Lo.GetValue<AuthorizationLocalResource>(nameof(AuthorizationLocalResource.LoginStatus)))：</GridCol><GridCol Span="14"><TagPro Text="@log.LoginStatus" Localizer="localizer"></TagPro></GridCol></GridRow>
+        @if(log.LoginFailReason!=null)
+    {
+        <GridRow><GridCol Span="10" Style="text-align:right;">@(Lo.GetValue<AuthorizationLocalResource>(nameof(AuthorizationLocalResource.LoginFailReason)))：</GridCol><GridCol Span="14"><TagPro Text="@log.LoginFailReason" Localizer="localizer"></TagPro></GridCol></GridRow>
+    }
+        <GridRow><GridCol Span="10" Style="text-align:right;">Ip：</GridCol><GridCol Span="14">@log.Ip</GridCol></GridRow>
+        <GridRow><GridCol Span="10" Style="text-align:right;">@(Lo.GetValue<AuthorizationLocalResource>(nameof(SharedLocalResource.ClientName)))：</GridCol><GridCol Span="14">@log.ClientName</GridCol></GridRow>
+        <GridRow><GridCol Span="10" Style="text-align:right;">@(Lo.GetValue<AuthorizationLocalResource>(nameof(SharedLocalResource.ClientVersion)))：</GridCol><GridCol Span="14">@log.ClientVersion</GridCol></GridRow>
+    </div>;
+}

@@ -1,0 +1,9 @@
+﻿global using TTShang.Core.DependencyInjection;
+global using TTShang.Core.Util;
+global using TTShang.Core.Enums;
+global using TTShang.Core.Client.Services;
+global using TTShang.Core.Client.OperationDialog;
+global using TTShang.Core.Client.Components.PageBaseClass;
+global using TTShang.Weighbridge.Dtos;
+global using TTShang.Weighbridge.Services;
+global using TTShang.Weighbridge.Resources;

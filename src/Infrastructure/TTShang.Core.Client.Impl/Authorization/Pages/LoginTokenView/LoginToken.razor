@@ -1,0 +1,120 @@
+﻿@page "/system_manager/login-token"
+@using TTShang.Core.Dtos.Constraints
+@inherits ListTableBase<LoginTokenDto, Guid>
+@{
+
+    TableFilter<IdentityType>[] identityTypeFilters = EnumHelper.EnumToList<IdentityType>().Select(x => { return new TableFilter<IdentityType>() { Text = Localizer[EnumHelper.GetEnumDescriptionOrName(x)], Value = x }; }).ToArray();
+
+    TableFilter<LoginClientType>[] loginClientTypeFilters = EnumHelper.EnumToList<LoginClientType>().Select(x => { return new TableFilter<LoginClientType>() { Text = Localizer[EnumHelper.GetEnumDescriptionOrName(x)], Value = x }; }).ToArray();
+}
+<div>
+    <Table @ref="_table"
+           TItem="LoginTokenDto"
+           DataSource="@_datas"
+           Total="_total"
+           OnChange="@OnChange"
+           @bind-PageSize="_pageSize"
+           @bind-PageIndex="_pageIndex"
+           @bind-SelectedRows="_selectedRows"
+           Loading="@_tableLoading.Value"
+           Context="model"
+           Size="@ClientConstant.DefaultTableSize"
+           ScrollX="100%"
+           PaginationPosition="@ClientConstant.TablePaginationPosition"
+    RemoteDataSource>
+        <TitleTemplate>
+             <ResourceAuthorize ResourceKey="system_manager_login_token_refresh">
+                <TableSearch TDto="LoginTokenDto" @ref="this._tableSearch" OnSearch="OnTableSearch" Settings="@_tableSearchSettings" CustomLocalizer="Localizer" />
+             </ResourceAuthorize>
+            <Row>
+                <AntDesign.Col Span="8">
+                    <ResourceAuthorize ResourceKey="system_manager_login_token_delete_selected">
+                        <Button Type="@ButtonType.Primary" Icon="delete" Danger OnClick="OnClickDeletes" Loading="_deletesBtnLoading">
+                            @Localizer[nameof(SharedLocalResource.DeleteSelected)]
+                        </Button>
+                    </ResourceAuthorize>
+                </AntDesign.Col>
+                <AntDesign.Col Span="16" Style="text-align:right">
+                    <Space>
+
+                        <ResourceAuthorize ResourceKey="system_manager_login_token_refresh">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="reload" OnClick="ReLoadTable">
+                                    @Localizer[nameof(SharedLocalResource.Refresh)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                        <ResourceAuthorize ResourceKey="system_manager_login_token_export">
+                            <SpaceItem>
+                                <Button Type="@ButtonType.Primary" Icon="export" OnClick="OnClickExport" Loading="_exportDataLoading">
+                                    @Localizer[nameof(SharedLocalResource.Export)]
+                                </Button>
+                            </SpaceItem>
+                        </ResourceAuthorize>
+                    </Space>
+                </AntDesign.Col>
+            </Row>
+        </TitleTemplate>
+        <ColumnDefinitions>
+             @if (!_userUnauthorizedResources["system_manager_login_token_delete_selected"])
+            {
+             <Selection Key="@(model.Id.ToString())" Hidden="@_userUnauthorizedResources["system_manager_login_token_delete_selected"]" Width="50" Fixed="left" />
+            }
+            <PropertyColumn Property="x=>x.TenantId" Filters="_tenantFilters" Filterable Title="@Localizer[nameof(SharedLocalResource.Tenant)]" Hidden="@_userUnauthorizedResources[CommonResourceKeys.SystemTenantAdministratorKey]" Width="@(_userUnauthorizedResources[CommonResourceKeys.SystemTenantAdministratorKey]?"0":"100")" Ellipsis Fixed="left">
+                <span>@model.Tenant?.Name</span>
+            </PropertyColumn>
+             <Column @bind-Field="@model.LoginId" Filterable Width="150" Fixed="left" >
+                <GuidView StringValue="@model.LoginId"></GuidView>
+             </Column>
+             <Column @bind-Field="@model.IdentityId" Filterable Width="120" Fixed="left" />
+             <Column @bind-Field="@model.IdentityName" Filterable Width="150" Fixed="left" />
+             <Column @bind-Field="@model.IdentityNickName" Filterable Width="150"/>
+             <Column @bind-Field="@model.IdentityType" Filters="identityTypeFilters" Width="120">
+                 <TagPro Text="@Localizer[EnumHelper.GetEnumDescriptionOrName(model.IdentityType)]"></TagPro>
+            </Column>
+            <Column @bind-Field="@model.LoginClientType" Filters="loginClientTypeFilters" Width="120">
+                 <TagPro Text="@Localizer[EnumHelper.GetEnumDescriptionOrName(model.LoginClientType)]"></TagPro>
+            </Column>
+             <Column @bind-Field="@model.ClientName" Filterable Width="150" />
+             <Column @bind-Field="@model.ClientVersion" Filterable Width="150" />
+             <Column @bind-Field="@model.Ip" Filterable Width="150" />
+             <Column @bind-Field="@model.IsLocked" Filterable Width="150">
+                <ResourceAuthorize ResourceKey="system_manager_login_token_lock">
+                    <Authorized>
+                        <Switch @bind-Value="@model.IsLocked" OnChange="e=>OnChangeIsLocked(model,e)" Loading="_lockBtnLoading[model]"></Switch>
+                    </Authorized>
+                    <NotAuthorized>
+                        <TagYesNo Yes="model.IsLocked"></TagYesNo>
+                    </NotAuthorized>
+                </ResourceAuthorize>
+            </Column>
+            <Column @bind-Field="@model.LoggedOut" Filterable Width="150">
+                 <TagYesNo Yes="model.LoggedOut"></TagYesNo>
+            </Column>
+             <Column @bind-Field="@model.UpdatedTime" Format="@ClientConstant.DateTimeFormat" Sortable Width="200" />
+             <Column @bind-Field="@model.EndTime" Format="@ClientConstant.DateTimeFormat" Sortable Width="200" />
+             <Column Title="@Localizer[nameof(SharedLocalResource.OnlineTime)]" TData="string" Width="200">
+                @if(model.UpdatedTime.HasValue)
+                {
+                    <span>@(DateTimeHelper.FormatDateTimeDiff(model.CreatedTime,model.UpdatedTime.Value))</span>
+                }
+                else
+                {
+                    <span>--</span>
+                }
+            </Column>
+            <Column @bind-Field="@model.CreatedTime" Format="@ClientConstant.DateTimeFormat" Sortable DefaultSortOrder="@SortDirection.Descending" Width="200" Fixed="right" />
+             <ActionColumn Width="100" Fixed="right">
+                <Space>
+                    <ResourceAuthorize ResourceKey="system_manager_login_token_delete">
+                        <SpaceItem>
+                            <Tooltip Title="@Localizer[nameof(SharedLocalResource.Delete)]" ArrowPointAtCenter="true">
+                                <Button Icon="delete" Type="@ButtonType.Primary" Danger OnClick="()=>OnClickDelete(model.Id)"></Button>
+                            </Tooltip>
+                        </SpaceItem>
+                    </ResourceAuthorize>
+                </Space>
+            </ActionColumn>
+        </ColumnDefinitions>
+    </Table>
+</div>

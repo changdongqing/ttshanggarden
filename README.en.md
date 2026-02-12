@@ -4,7 +4,7 @@
 
 ## Introduction
 
-Gardener is a back-end management system developed based on .net 7, the front and back of the system are separated, the api is developed based on the Furion framework, and the front-end is developed based on ant-design-blazor. The system uses a newer technology or framework. Please click star if you like :kissing_heart: 
+TTShang is a back-end management system developed based on .net 10, the front and back of the system are separated, the api is developed based on the Furion framework, and the front-end is developed based on ant-design-blazor. The system uses a newer technology or framework. Please click star if you like :kissing_heart: 
 
 ## Demo
 UserName：admin、admin1、admin2、admin3、admin4、admin5、admin6
@@ -18,7 +18,7 @@ docker run --name gardener -p 80:80 --restart=always -d huhangfei/gardener
 ```
 
 ## feature
-- NEW：.Net7 、Blazor WebAssembly 、Furion : all new technologies。
+- NEW：.Net10 、Blazor WebAssembly 、Furion : all new technologies。
 - EASY：Simple and practical function
 
 ## Documentation
@@ -26,7 +26,7 @@ docker run --name gardener -p 80:80 --restart=always -d huhangfei/gardener
 
 ## Contributor
 
-Thanks to everyone who contributed code to  **Gardener** , and welcome everyone to submit a PR or Issue.
+Thanks to everyone who contributed code to  **TTShang** , and welcome everyone to submit a PR or Issue.
 
 ## Links
 👉 **[Furion](https://gitee.com/dotnetchina/Furion)**  
